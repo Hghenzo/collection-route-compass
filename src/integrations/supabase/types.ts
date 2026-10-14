@@ -14,16 +14,428 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          changes: Json
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          changes?: Json
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          changes?: Json
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operational_settings: {
+        Row: {
+          id: string
+          low_volume_max: number | null
+          medium_volume_max: number | null
+          singleton: boolean
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          id?: string
+          low_volume_max?: number | null
+          medium_volume_max?: number | null
+          singleton?: boolean
+          updated_at?: string
+          updated_by?: string
+        }
+        Update: {
+          id?: string
+          low_volume_max?: number | null
+          medium_volume_max?: number | null
+          singleton?: boolean
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operational_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planning_stores: {
+        Row: {
+          created_at: string
+          created_by: string
+          duplicate_justification: string | null
+          full_address_snapshot: string
+          id: string
+          needs_extra_route: boolean
+          needs_support: boolean
+          notes: string
+          planning_id: string
+          predicted_volume: number
+          priority: Database["public"]["Enums"]["operational_priority"]
+          region_snapshot: string
+          route_id: string | null
+          status: Database["public"]["Enums"]["collection_status"]
+          store_code_snapshot: string
+          store_id: string
+          store_name_snapshot: string
+          support_type: Database["public"]["Enums"]["support_type"] | null
+          updated_at: string
+          updated_by: string
+          volume_class: Database["public"]["Enums"]["volume_class"] | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          duplicate_justification?: string | null
+          full_address_snapshot?: string
+          id?: string
+          needs_extra_route?: boolean
+          needs_support?: boolean
+          notes?: string
+          planning_id: string
+          predicted_volume?: number
+          priority?: Database["public"]["Enums"]["operational_priority"]
+          region_snapshot?: string
+          route_id?: string | null
+          status?: Database["public"]["Enums"]["collection_status"]
+          store_code_snapshot: string
+          store_id: string
+          store_name_snapshot: string
+          support_type?: Database["public"]["Enums"]["support_type"] | null
+          updated_at?: string
+          updated_by?: string
+          volume_class?: Database["public"]["Enums"]["volume_class"] | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          duplicate_justification?: string | null
+          full_address_snapshot?: string
+          id?: string
+          needs_extra_route?: boolean
+          needs_support?: boolean
+          notes?: string
+          planning_id?: string
+          predicted_volume?: number
+          priority?: Database["public"]["Enums"]["operational_priority"]
+          region_snapshot?: string
+          route_id?: string | null
+          status?: Database["public"]["Enums"]["collection_status"]
+          store_code_snapshot?: string
+          store_id?: string
+          store_name_snapshot?: string
+          support_type?: Database["public"]["Enums"]["support_type"] | null
+          updated_at?: string
+          updated_by?: string
+          volume_class?: Database["public"]["Enums"]["volume_class"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planning_stores_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planning_stores_planning_id_fkey"
+            columns: ["planning_id"]
+            isOneToOne: false
+            referencedRelation: "plannings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planning_stores_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "routes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planning_stores_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planning_stores_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plannings: {
+        Row: {
+          collection_date: string
+          created_at: string
+          created_by: string
+          id: string
+          notes: string
+          shift: Database["public"]["Enums"]["work_shift"]
+          status: Database["public"]["Enums"]["collection_status"]
+          updated_at: string
+        }
+        Insert: {
+          collection_date: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          notes?: string
+          shift: Database["public"]["Enums"]["work_shift"]
+          status?: Database["public"]["Enums"]["collection_status"]
+          updated_at?: string
+        }
+        Update: {
+          collection_date?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          notes?: string
+          shift?: Database["public"]["Enums"]["work_shift"]
+          status?: Database["public"]["Enums"]["collection_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plannings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string
+          email?: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          email?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      routes: {
+        Row: {
+          archived: boolean
+          capacity_packages: number | null
+          code: string
+          created_at: string
+          created_by: string
+          id: string
+          needs_extra_route: boolean
+          needs_support: boolean
+          notes: string
+          planning_id: string
+          responsible: string
+          status: Database["public"]["Enums"]["collection_status"]
+          updated_at: string
+          vehicle: string
+        }
+        Insert: {
+          archived?: boolean
+          capacity_packages?: number | null
+          code: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          needs_extra_route?: boolean
+          needs_support?: boolean
+          notes?: string
+          planning_id: string
+          responsible?: string
+          status?: Database["public"]["Enums"]["collection_status"]
+          updated_at?: string
+          vehicle?: string
+        }
+        Update: {
+          archived?: boolean
+          capacity_packages?: number | null
+          code?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          needs_extra_route?: boolean
+          needs_support?: boolean
+          notes?: string
+          planning_id?: string
+          responsible?: string
+          status?: Database["public"]["Enums"]["collection_status"]
+          updated_at?: string
+          vehicle?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routes_planning_id_fkey"
+            columns: ["planning_id"]
+            isOneToOne: false
+            referencedRelation: "plannings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          active: boolean
+          city: string
+          complement: string
+          created_at: string
+          created_by: string
+          fixed_notes: string
+          full_address: string
+          id: string
+          location_reference: string
+          name: string
+          region: string
+          store_code: string
+          street: string
+          street_number: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          city?: string
+          complement?: string
+          created_at?: string
+          created_by?: string
+          fixed_notes?: string
+          full_address?: string
+          id?: string
+          location_reference?: string
+          name: string
+          region?: string
+          store_code: string
+          street?: string
+          street_number?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          city?: string
+          complement?: string
+          created_at?: string
+          created_by?: string
+          fixed_notes?: string
+          full_address?: string
+          id?: string
+          location_reference?: string
+          name?: string
+          region?: string
+          store_code?: string
+          street?: string
+          street_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stores_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "planner"
+      collection_status:
+        | "nao_planejada"
+        | "planejada"
+        | "confirmada"
+        | "em_andamento"
+        | "concluida"
+        | "com_problema"
+      operational_priority: "baixa" | "normal" | "alta" | "critica"
+      support_type:
+        | "veiculo_extra"
+        | "outra_rota"
+        | "equipe_adicional"
+        | "outro"
+      volume_class: "baixo" | "medio" | "alto"
+      work_shift: "manha" | "tarde" | "noite"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +562,25 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "planner"],
+      collection_status: [
+        "nao_planejada",
+        "planejada",
+        "confirmada",
+        "em_andamento",
+        "concluida",
+        "com_problema",
+      ],
+      operational_priority: ["baixa", "normal", "alta", "critica"],
+      support_type: [
+        "veiculo_extra",
+        "outra_rota",
+        "equipe_adicional",
+        "outro",
+      ],
+      volume_class: ["baixo", "medio", "alto"],
+      work_shift: ["manha", "tarde", "noite"],
+    },
   },
 } as const
