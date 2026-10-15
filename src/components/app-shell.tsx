@@ -24,7 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
-    await navigate({ to: "/auth", replace: true });
+    await navigate({ to: "/auth", search: { redirect: "/dashboard" }, replace: true });
   }
   return (
     <SidebarProvider>
@@ -37,7 +37,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </SidebarHeader>
         <SidebarContent className="px-2 py-4">
           <SidebarMenu>
-            {nav.map(([to, label, Icon]) => <SidebarMenuItem key={to}><SidebarMenuButton asChild isActive={pathname === to} tooltip={label}><Link to={to}><Icon /><span>{label}</span></Link></SidebarMenuButton></SidebarMenuItem>)}
+            {nav.map(([to, label, Icon]) => <SidebarMenuItem key={to}>{to === "/dashboard" || to === "/planejamento" || to === "/lojas" ? <SidebarMenuButton asChild isActive={pathname === to} tooltip={label}><Link to={to}><Icon /><span>{label}</span></Link></SidebarMenuButton> : <SidebarMenuButton disabled tooltip={`${label} — indisponível`}><Icon /><span>{label}</span></SidebarMenuButton>}</SidebarMenuItem>)}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border p-2"><SidebarMenu><SidebarMenuItem><SidebarMenuButton tooltip="Sair" onClick={signOut}><LogOut /><span>Sair</span></SidebarMenuButton></SidebarMenuItem></SidebarMenu></SidebarFooter>
