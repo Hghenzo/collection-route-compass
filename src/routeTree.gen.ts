@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedLojasRouteImport } from './routes/_authenticated/lojas'
 import { Route as AuthenticatedPlanejamentoRouteImport } from './routes/_authenticated/planejamento'
+import { Route as AuthenticatedRotasRouteImport } from './routes/_authenticated/rotas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const AuthenticatedPlanejamentoRoute =
     path: '/planejamento',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRotasRoute = AuthenticatedRotasRouteImport.update({
+  id: '/rotas',
+  path: '/rotas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/lojas': typeof AuthenticatedLojasRoute
   '/planejamento': typeof AuthenticatedPlanejamentoRoute
+  '/rotas': typeof AuthenticatedRotasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/lojas': typeof AuthenticatedLojasRoute
   '/planejamento': typeof AuthenticatedPlanejamentoRoute
+  '/rotas': typeof AuthenticatedRotasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -69,12 +77,14 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/lojas': typeof AuthenticatedLojasRoute
   '/_authenticated/planejamento': typeof AuthenticatedPlanejamentoRoute
+  '/_authenticated/rotas': typeof AuthenticatedRotasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/lojas' | '/planejamento'
+  fullPaths:
+    '/' | '/auth' | '/dashboard' | '/lojas' | '/planejamento' | '/rotas'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/lojas' | '/planejamento'
+  to: '/' | '/auth' | '/dashboard' | '/lojas' | '/planejamento' | '/rotas'
   id:
     | '__root__'
     | '/'
@@ -83,6 +93,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/lojas'
     | '/_authenticated/planejamento'
+    | '/_authenticated/rotas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -135,6 +146,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlanejamentoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/rotas': {
+      id: '/_authenticated/rotas'
+      path: '/rotas'
+      fullPath: '/rotas'
+      preLoaderRoute: typeof AuthenticatedRotasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -142,12 +160,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLojasRoute: typeof AuthenticatedLojasRoute
   AuthenticatedPlanejamentoRoute: typeof AuthenticatedPlanejamentoRoute
+  AuthenticatedRotasRoute: typeof AuthenticatedRotasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLojasRoute: AuthenticatedLojasRoute,
   AuthenticatedPlanejamentoRoute: AuthenticatedPlanejamentoRoute,
+  AuthenticatedRotasRoute: AuthenticatedRotasRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
