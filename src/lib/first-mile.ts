@@ -38,8 +38,9 @@ export async function getOrCreatePlanning(collectionDate: string, shift: "manha"
 }
 
 export function csvDownload(filename: string, rows: Record<string, unknown>[]) {
-  if (!rows.length) return;
-  const headers = Object.keys(rows[0]);
+  const firstRow = rows[0];
+  if (!firstRow) return;
+  const headers = Object.keys(firstRow);
   const encode = (value: unknown) => `"${String(value ?? "").replaceAll('"', '""')}"`;
   const csv = `\uFEFF${headers.map(encode).join(";")}\n${rows.map((row) => headers.map((key) => encode(row[key])).join(";")).join("\n")}`;
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({ redirect: typeof search.redirect === "string" ? search.redirect : "/dashboard" }),
+  validateSearch: (search: Record<string, unknown>) => ({ redirect: typeof search["redirect"] === "string" ? search["redirect"] : "/dashboard" }),
   head: () => ({ meta: [{ title: "Acesso | First Mile Control" }, { name: "description", content: "Acesso seguro ao planejamento de coletas First Mile." }, { property: "og:title", content: "Acesso | First Mile Control" }, { property: "og:description", content: "Acesso seguro ao planejamento de coletas First Mile." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AuthPage,
 });

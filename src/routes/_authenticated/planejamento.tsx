@@ -30,8 +30,8 @@ type PlanRow = {
   needs_extra_route: boolean;
   needs_support: boolean;
   support_type: string | null;
-  priority: string;
-  status: string;
+  priority: (typeof priorities)[number][0];
+  status: (typeof statuses)[number][0];
   notes: string;
 };
 export const Route = createFileRoute("/_authenticated/planejamento")({
@@ -147,10 +147,21 @@ function Planning() {
   }
   async function bulk(field: "route_id" | "priority" | "status", value: string) {
     if (!selected.length) return;
+    const next: Partial<PlanRow> = {};
+    if (field === "route_id") next.route_id = value || null;
+    else if (field === "priority") {
+      const priority = priorities.find(([key]) => key === value)?.[0];
+      if (!priority) return;
+      next.priority = priority;
+    } else {
+      const status = statuses.find(([key]) => key === value)?.[0];
+      if (!status) return;
+      next.status = status;
+    }
     setSaving(true);
     const { error } = await supabase
       .from("planning_stores")
-      .update({ [field]: value || null })
+      .update(next)
       .in("id", selected);
     setSaving(false);
     if (error) toast.error(error.message);
@@ -402,7 +413,10 @@ function Planning() {
                   <select
                     className={selectClass}
                     value={row.priority}
-                    onChange={(e) => void patch(row, { priority: e.target.value })}
+                    onChange={(e) => {
+                      const priority = priorities.find(([key]) => key === e.target.value)?.[0];
+                      if (priority) void patch(row, { priority });
+                    }}
                   >
                     {priorities.map((p) => (
                       <option key={p[0]} value={p[0]}>
@@ -415,7 +429,10 @@ function Planning() {
                   <select
                     className={selectClass}
                     value={row.status}
-                    onChange={(e) => void patch(row, { status: e.target.value })}
+                    onChange={(e) => {
+                      const status = statuses.find(([key]) => key === e.target.value)?.[0];
+                      if (status) void patch(row, { status });
+                    }}
                   >
                     {statuses.map((s) => (
                       <option key={s[0]} value={s[0]}>
