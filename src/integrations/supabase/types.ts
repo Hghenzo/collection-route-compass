@@ -411,12 +411,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      archive_route: {
+        Args: { _archived: boolean; _id: string }
+        Returns: undefined
+      }
+      confirm_planning: { Args: { _id: string }; Returns: undefined }
+      copy_planning: {
+        Args: {
+          _date: string
+          _shift: Database["public"]["Enums"]["work_shift"]
+          _source: string
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      import_first_mile: {
+        Args: {
+          _create_new: boolean
+          _date: string
+          _rows: Json
+          _shift: Database["public"]["Enums"]["work_shift"]
+          _update_existing: boolean
+        }
+        Returns: Json
       }
     }
     Enums: {

@@ -8,6 +8,13 @@
       "when": 1791989155777,
       "tag": "0000_first_mile_core_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792036796178,
+      "tag": "0001_operational_integrity_and_workflows",
+      "breakpoints": true
     }
   ]
 }
