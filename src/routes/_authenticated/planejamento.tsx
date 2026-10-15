@@ -29,7 +29,7 @@ type PlanRow = {
   volume_class: "baixo" | "medio" | "alto" | null;
   needs_extra_route: boolean;
   needs_support: boolean;
-  support_type: string | null;
+  support_type: "veiculo_extra" | "outra_rota" | "equipe_adicional" | "outro" | null;
   priority: (typeof priorities)[number][0];
   status: (typeof statuses)[number][0];
   notes: string;
@@ -400,7 +400,12 @@ function Planning() {
                   <select
                     className={selectClass}
                     value={row.support_type ?? ""}
-                    onChange={(e) => void patch(row, { support_type: e.target.value || null })}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "" || value === "veiculo_extra" || value === "outra_rota" || value === "equipe_adicional" || value === "outro") {
+                        void patch(row, { support_type: value || null });
+                      }
+                    }}
                   >
                     <option value="">—</option>
                     <option value="veiculo_extra">Veículo extra</option>
