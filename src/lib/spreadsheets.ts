@@ -1,0 +1,12 @@
+import * as XLSX from 'xlsx';
+export const importFields=[['store_code','ID da loja'],['name','Nome'],['full_address','Endereço'],['street','Rua'],['street_number','Número'],['region','Região'],['city','Cidade'],['route','Rota'],['predicted_volume','Volume'],['notes','Observações']] as const;
+export type ImportRow=Record<(typeof importFields)[number][0],string>;
+const aliases:Record<string,string[]>= {store_code:['id','id da loja','codigo','codigo da loja','store code'],name:['loja','nome','nome da loja'],full_address:['endereco','endereco completo'],street:['rua','logradouro'],street_number:['numero'],region:['regiao','bairro'],city:['cidade'],route:['rota','rota atribuida'],predicted_volume:['volume','pacotes','volume previsto','volume previsto de pacotes'],notes:['observacoes','obs']};
+export function normalize(value:string){return value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/_/g,' ').trim();}
+export function inferMapping(headers:string[]){return Object.fromEntries(importFields.map(([field])=>[field,headers.find(h=>aliases[field]?.includes(normalize(h)))??''])) as Record<keyof ImportRow,string>;}
+export function validateImport(rows:ImportRow[]){const seen=new Set<string>();return rows.map(row=>{const errors:string[]=[];if(!row.store_code.trim())errors.push('ID obrigatório');if(!row.name.trim())errors.push('Nome obrigatório');if(seen.has(row.store_code.trim())) errors.push('ID repetido');seen.add(row.store_code.trim());if(row.predicted_volume!==''&&(!/^\d+$/.test(row.predicted_volume)||Number(row.predicted_volume)>2147483647)) errors.push('Volume inteiro e não negativo');return errors;});}
+export function sheetDownload(filename:string,rows:Record<string,unknown>[],format:'xlsx'|'csv'='xlsx'){
+ const safe=rows.map(row=>Object.fromEntries(Object.entries(row).map(([k,v])=>[k,typeof v==='string'&&/^[=+\-@]/.test(v)?`'${v}`:v])));
+ const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,XLSX.utils.json_to_sheet(safe),'Planejamento');XLSX.writeFile(book,`${filename}.${format}`,{bookType:format,FS:';'});
+}
+export async function readSheet(file:File){const book=XLSX.read(await file.arrayBuffer(),{type:'array'});const name=book.SheetNames[0];if(!name)throw new Error('Arquivo sem planilha');const sheet=book.Sheets[name];if(!sheet)throw new Error('Planilha não encontrada');return XLSX.utils.sheet_to_json<Record<string,string>>(sheet,{defval:'',raw:false});}
