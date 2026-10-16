@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Planning and history exports use the shared spreadsheet workbook and planning-row mapper, preserving all stored row fields plus date, shift, and route code; CSV separators belong to sheet_to_csv, not WritingOptions.
