@@ -1,5 +1,5 @@
 # First Mile Control — conclusão
-- [ ] Verificar exportação CSV/XLSX: tipos válidos e preservação de todos os campos do planejamento.
+- [x] Verificar exportação CSV/XLSX: compilação aprovada e testes de preservação de campos concluídos; verificação pela tela aguarda usuário cadastrado.
 - [ ] Rotas: cadastro, edição, capacidade, arquivamento e transferência confirmada.
 - [ ] Importação CSV/XLSX: mapeamento, correção, duplicidades, confirmação e resumo; exportação e modelo.
 - [ ] Histórico: consulta, autoria, datas e duplicação segura.
