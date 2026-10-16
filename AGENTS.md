@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Planning and history exports use the shared spreadsheet workbook and planning-row mapper, preserving all stored row fields plus date, shift, and route code; CSV separators belong to sheet_to_csv, not WritingOptions.
+- The root route redirects to /dashboard, whose authenticated layout handles access, so the initial preview never shows the template placeholder.
