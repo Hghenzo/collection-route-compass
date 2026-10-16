@@ -1,4 +1,6 @@
 # First Mile Control — conclusão
+- [ ] Aplicar visual escuro profissional ao acesso e às telas operacionais.
+- [ ] Liberar todos os destinos existentes no menu e verificar a navegação.
 - [x] Verificar exportação CSV/XLSX: compilação aprovada e testes de preservação de campos concluídos; verificação pela tela aguarda usuário cadastrado.
 - [ ] Rotas: cadastro, edição, capacidade, arquivamento e transferência confirmada.
 - [ ] Importação CSV/XLSX: mapeamento, correção, duplicidades, confirmação e resumo; exportação e modelo.
