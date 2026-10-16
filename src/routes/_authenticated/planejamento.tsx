@@ -7,8 +7,9 @@ import { PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { planningExportRows, sheetDownload } from "@/lib/spreadsheets";
+import type { Tables } from "@/integrations/supabase/types";
 import {
-  csvDownload,
   getOrCreatePlanning,
   priorities,
   shifts,
@@ -17,23 +18,7 @@ import {
 } from "@/lib/first-mile";
 type Store = { id: string; store_code: string; name: string; full_address: string; region: string };
 type RouteRow = { id: string; code: string };
-type PlanRow = {
-  id: string;
-  store_id: string;
-  store_code_snapshot: string;
-  store_name_snapshot: string;
-  full_address_snapshot: string;
-  region_snapshot: string;
-  route_id: string | null;
-  predicted_volume: number;
-  volume_class: "baixo" | "medio" | "alto" | null;
-  needs_extra_route: boolean;
-  needs_support: boolean;
-  support_type: "veiculo_extra" | "outra_rota" | "equipe_adicional" | "outro" | null;
-  priority: (typeof priorities)[number][0];
-  status: (typeof statuses)[number][0];
-  notes: string;
-};
+type PlanRow = Tables<'planning_stores'>;
 export const Route = createFileRoute("/_authenticated/planejamento")({
   head: () => ({
     meta: [
@@ -73,9 +58,7 @@ function Planning() {
     const [a, b] = await Promise.all([
       supabase
         .from("planning_stores")
-        .select(
-          "id,store_id,store_code_snapshot,store_name_snapshot,full_address_snapshot,region_snapshot,route_id,predicted_volume,volume_class,needs_extra_route,needs_support,support_type,priority,status,notes",
-        )
+        .select('*')
         .eq("planning_id", p.data.id)
         .order("created_at"),
       supabase.from("routes").select("id,code").eq("planning_id", p.data.id).eq("archived", false),
@@ -208,10 +191,17 @@ function Planning() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => csvDownload(`planejamento-${date}.csv`, filtered)}
+              onClick={() => sheetDownload(`planejamento-${date}`, planningExportRows(filtered, { collection_date: date, shift }, routes), 'csv')}
             >
               <Download />
-              Exportar
+              Exportar CSV
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => sheetDownload(`planejamento-${date}`, planningExportRows(filtered, { collection_date: date, shift }, routes))}
+            >
+              <Download />
+              Exportar Excel
             </Button>
             <Button onClick={openAdd}>
               <Plus />
