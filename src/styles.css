@@ -163,10 +163,26 @@
 }
 
 @layer base {
-  html { color-scheme: dark; }
-  button, input, select, textarea { font: inherit; }
-  input[type="checkbox"] { accent-color: var(--primary); }
-  th { white-space: nowrap; }
-  tbody tr { border-bottom: 1px solid var(--border); }
-  ::selection { background: var(--sidebar-accent); color: var(--foreground); }
+  html {
+    color-scheme: dark;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+  input[type="checkbox"] {
+    accent-color: var(--primary);
+  }
+  th {
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+  }
+  ::selection {
+    background: var(--sidebar-accent);
+    color: var(--foreground);
+  }
 }
