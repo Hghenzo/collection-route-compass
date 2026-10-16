@@ -3,6 +3,11 @@ import * as XLSX from 'xlsx';
 import type { Tables } from '@/integrations/supabase/types';
 import { exportWorkbook, planningExportRows, sheetDownload } from './spreadsheets';
 
+vi.mock('xlsx', async (importOriginal) => {
+ const actual = await importOriginal<typeof XLSX>();
+ return {...actual, writeFile: vi.fn()};
+});
+
 const row: Tables<'planning_stores'> = {
  id: 'record-1', planning_id: 'planning-1', store_id: 'store-1',
  store_code_snapshot: '00042', store_name_snapshot: 'Loja de teste',
@@ -29,7 +34,7 @@ describe('Planning spreadsheet exports', () => {
  });
 
  it('uses valid Excel writing options and downloads the expected file', () => {
-  const writeFile = vi.spyOn(XLSX, 'writeFile').mockImplementation(() => undefined);
+  const writeFile = vi.mocked(XLSX.writeFile);
   sheetDownload('planejamento', planningExportRows([row], planning, routes));
   expect(writeFile).toHaveBeenCalledWith(expect.anything(), 'planejamento.xlsx', {bookType: 'xlsx'});
  });
@@ -39,11 +44,12 @@ describe('Planning spreadsheet exports', () => {
   Object.defineProperty(URL, 'createObjectURL', {configurable: true, value: vi.fn((blob: Blob) => {exported = blob; return 'blob:test';})});
   Object.defineProperty(URL, 'revokeObjectURL', {configurable: true, value: vi.fn()});
   let filename = '';
-  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () {filename = this.download;});
+  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {filename = this.download;});
   sheetDownload('planejamento', planningExportRows([row], planning, routes), 'csv');
   if (!exported) throw new Error('No CSV download');
+  const blob = exported;
   const csv = await new Promise<string>((resolve, reject) => {
-   const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsText(exported);
+   const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsText(blob);
   });
   expect(filename).toBe('planejamento.csv');
   expect(csv).toContain('"id";"planning_id"');
@@ -53,7 +59,7 @@ describe('Planning spreadsheet exports', () => {
   if (!sheet) throw new Error('Missing CSV sheet');
   const [record] = XLSX.utils.sheet_to_json<Record<string, string>>(sheet, {defval: ''});
   const expected = {...row, ...planning, route_code: 'R-01'};
-  expect(record).toEqual(Object.fromEntries(Object.entries(expected).map(([key, value]) => [key, String(value)])));
+  expect(record).toEqual(Object.fromEntries(Object.entries(expected).map(([key, value]) => [key, typeof value === 'boolean' ? String(value).toUpperCase() : String(value)])));
  });
 
  it('keeps unassigned values and only exports the supplied filtered rows', () => {
