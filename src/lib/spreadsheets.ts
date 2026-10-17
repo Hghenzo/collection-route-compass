@@ -23,4 +23,4 @@ export function sheetDownload(filename:string,rows:Record<string,unknown>[],form
  const anchor=document.createElement('a');anchor.href=url;anchor.download=`${filename}.csv`;anchor.click();
  setTimeout(()=>URL.revokeObjectURL(url),0);
 }
-export async function readSheet(file:File){const book=XLSX.read(await file.arrayBuffer(),{type:'array'});const name=book.SheetNames[0];if(!name)throw new Error('Arquivo sem planilha');const sheet=book.Sheets[name];if(!sheet)throw new Error('Planilha não encontrada');return XLSX.utils.sheet_to_json<Record<string,string>>(sheet,{defval:'',raw:false});}
+export async function readSheet(file:File){const bytes=await file.arrayBuffer();const book=/\.csv$/i.test(file.name)?XLSX.read(new TextDecoder('utf-8').decode(bytes),{type:'string',raw:true}):XLSX.read(bytes,{type:'array'});const name=book.SheetNames[0];if(!name)throw new Error('Arquivo sem planilha');const sheet=book.Sheets[name];if(!sheet)throw new Error('Planilha não encontrada');return XLSX.utils.sheet_to_json<Record<string,string>>(sheet,{defval:'',raw:false});}

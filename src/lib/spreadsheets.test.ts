@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as XLSX from 'xlsx';
 import type { Tables } from '@/integrations/supabase/types';
-import { exportWorkbook, planningExportRows, sheetDownload } from './spreadsheets';
+import { exportWorkbook, planningExportRows, sheetDownload, readSheet, inferMapping } from './spreadsheets';
 
 vi.mock('xlsx', async (importOriginal) => {
  const actual = await importOriginal<typeof XLSX>();
@@ -24,6 +24,13 @@ const routes = [{id: 'route-1', code: 'R-01'}];
 afterEach(() => vi.restoreAllMocks());
 
 describe('Planning spreadsheet exports', () => {
+ it('reads Portuguese CSV headers and addresses without corrupting UTF-8', async () => {
+  const bytes = new TextEncoder().encode('ID;Nome;Endereço;Observações\n00042;Loja São João;Rua Açúcar, 10;Coleta à tarde\n');
+  const file = { name: 'lojas.csv', arrayBuffer: async () => bytes.buffer } as File;
+  const records = await readSheet(file);
+  expect(records[0]).toEqual({ ID: '00042', Nome: 'Loja São João', Endereço: 'Rua Açúcar, 10', Observações: 'Coleta à tarde' });
+  expect(inferMapping(Object.keys(records[0] ?? {})).full_address).toBe('Endereço');
+ });
  it('preserves every stored planning field, date, shift and route code in Excel', () => {
   const records = planningExportRows([row], planning, routes);
   const output = XLSX.write(exportWorkbook(records), {type: 'array', bookType: 'xlsx'});
