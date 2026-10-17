@@ -9,7 +9,11 @@ export function routeIndicators(
 ) {
   const active = routes.filter((route) => !route.archived);
   return {
-    support: active.filter((route) => route.needs_support || items.some((item) => item.route_id === route.id && item.needs_support)).length,
+    support: active.filter(
+      (route) =>
+        route.needs_support ||
+        items.some((item) => item.route_id === route.id && item.needs_support),
+    ).length,
     extra: active.filter((route) => route.needs_extra_route).length,
   };
 }

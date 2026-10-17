@@ -11,16 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { planningExportRows, sheetDownload } from "@/lib/spreadsheets";
 import type { Tables } from "@/integrations/supabase/types";
-import {
-  getOrCreatePlanning,
-  priorities,
-  shifts,
-  statuses,
-  today,
-} from "@/lib/first-mile";
+import { getOrCreatePlanning, priorities, shifts, statuses, today } from "@/lib/first-mile";
 type Store = { id: string; store_code: string; name: string; full_address: string; region: string };
 type RouteRow = { id: string; code: string };
-type PlanRow = Tables<'planning_stores'>;
+type PlanRow = Tables<"planning_stores">;
 export const Route = createFileRoute("/_authenticated/planejamento")({
   head: () => ({
     meta: [
@@ -47,13 +41,16 @@ function Planning() {
   const [saving, setSaving] = useState(false);
   const [undo, setUndo] = useState<{ id: string; patch: Partial<PlanRow> } | null>(null);
   const [planningId, setPlanningId] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState('');
-  const [routeFilter, setRouteFilter] = useState('');
-  const [regionFilter, setRegionFilter] = useState('');
-  const [volumeFilter, setVolumeFilter] = useState('');
-  const [supportFilter, setSupportFilter] = useState('');
-  const [extraFilter, setExtraFilter] = useState('');
-  const [sort, setSort] = useState<{ key: keyof PlanRow; ascending: boolean }>({ key: 'created_at', ascending: true });
+  const [statusFilter, setStatusFilter] = useState("");
+  const [routeFilter, setRouteFilter] = useState("");
+  const [regionFilter, setRegionFilter] = useState("");
+  const [volumeFilter, setVolumeFilter] = useState("");
+  const [supportFilter, setSupportFilter] = useState("");
+  const [extraFilter, setExtraFilter] = useState("");
+  const [sort, setSort] = useState<{ key: keyof PlanRow; ascending: boolean }>({
+    key: "created_at",
+    ascending: true,
+  });
   async function load() {
     const p = await supabase
       .from("plannings")
@@ -69,17 +66,13 @@ function Planning() {
     }
     setPlanningId(p.data.id);
     const [a, b] = await Promise.all([
-      supabase
-        .from("planning_stores")
-        .select('*')
-        .eq("planning_id", p.data.id)
-        .order("created_at"),
+      supabase.from("planning_stores").select("*").eq("planning_id", p.data.id).order("created_at"),
       supabase.from("routes").select("id,code").eq("planning_id", p.data.id).eq("archived", false),
     ]);
     setRows((a.data ?? []) as PlanRow[]);
     setRoutes(b.data ?? []);
     setSelected([]);
-    await queryClient.invalidateQueries({ queryKey: ['operations'] });
+    await queryClient.invalidateQueries({ queryKey: ["operations"] });
   }
   useEffect(() => {
     void load();
@@ -96,16 +89,14 @@ function Planning() {
   async function add(store: Store) {
     try {
       const planning_id = await getOrCreatePlanning(date, shift);
-      const { error } = await supabase
-        .from("planning_stores")
-        .insert({
-          planning_id,
-          store_id: store.id,
-          store_code_snapshot: store.store_code,
-          store_name_snapshot: store.name,
-          full_address_snapshot: store.full_address,
-          region_snapshot: store.region,
-        });
+      const { error } = await supabase.from("planning_stores").insert({
+        planning_id,
+        store_id: store.id,
+        store_code_snapshot: store.store_code,
+        store_name_snapshot: store.name,
+        full_address_snapshot: store.full_address,
+        region_snapshot: store.region,
+      });
       if (error) throw error;
       setAdding(false);
       await load();
@@ -138,7 +129,9 @@ function Planning() {
     else await load();
   }
   async function duplicate(row: PlanRow) {
-    const reason = duplicateReason(window.prompt("Informe a justificativa operacional para repetir esta loja:"));
+    const reason = duplicateReason(
+      window.prompt("Informe a justificativa operacional para repetir esta loja:"),
+    );
     if (!reason) return;
     const planning_id = await getOrCreatePlanning(date, shift);
     const { id, ...copy } = row;
@@ -149,12 +142,20 @@ function Planning() {
     else await load();
   }
   async function confirmPlanning() {
-    if (!planningId || !rows.length || !window.confirm('Confirmar este planejamento e as rotas atribuídas?')) return;
+    if (
+      !planningId ||
+      !rows.length ||
+      !window.confirm("Confirmar este planejamento e as rotas atribuídas?")
+    )
+      return;
     setSaving(true);
-    const { error } = await supabase.rpc('confirm_planning', { _id: planningId });
+    const { error } = await supabase.rpc("confirm_planning", { _id: planningId });
     setSaving(false);
     if (error) toast.error(error.message);
-    else { await load(); toast.success('Planejamento confirmado'); }
+    else {
+      await load();
+      toast.success("Planejamento confirmado");
+    }
   }
   async function bulk(field: "route_id" | "priority" | "status", value: string) {
     if (!selected.length) return;
@@ -170,10 +171,7 @@ function Planning() {
       next.status = status;
     }
     setSaving(true);
-    const { error } = await supabase
-      .from("planning_stores")
-      .update(next)
-      .in("id", selected);
+    const { error } = await supabase.from("planning_stores").update(next).in("id", selected);
     setSaving(false);
     if (error) toast.error(error.message);
     else {
@@ -184,22 +182,40 @@ function Planning() {
   }
   const filtered = useMemo(
     () =>
-      rows.filter((r) =>
-        `${r.store_code_snapshot} ${r.store_name_snapshot} ${r.full_address_snapshot} ${routes.find((x) => x.id === r.route_id)?.code ?? ""}`
-          .toLowerCase()
-          .includes(search.toLowerCase()) &&
-          (!statusFilter || r.status === statusFilter) &&
-          (!routeFilter || (routeFilter === 'none' ? !r.route_id : r.route_id === routeFilter)) &&
-          (!regionFilter || r.region_snapshot === regionFilter) &&
-          (!volumeFilter || r.volume_class === volumeFilter) &&
-          (!supportFilter || r.needs_support === (supportFilter === 'yes')) &&
-          (!extraFilter || r.needs_extra_route === (extraFilter === 'yes')),
-      ).sort((a, b) => {
-        const left = a[sort.key]; const right = b[sort.key];
-        const result = typeof left === 'number' && typeof right === 'number' ? left - right : String(left ?? '').localeCompare(String(right ?? ''), 'pt-BR', { numeric: true });
-        return sort.ascending ? result : -result;
-      }),
-    [rows, routes, search, statusFilter, routeFilter, regionFilter, volumeFilter, supportFilter, extraFilter, sort],
+      rows
+        .filter(
+          (r) =>
+            `${r.store_code_snapshot} ${r.store_name_snapshot} ${r.full_address_snapshot} ${routes.find((x) => x.id === r.route_id)?.code ?? ""}`
+              .toLowerCase()
+              .includes(search.toLowerCase()) &&
+            (!statusFilter || r.status === statusFilter) &&
+            (!routeFilter || (routeFilter === "none" ? !r.route_id : r.route_id === routeFilter)) &&
+            (!regionFilter || r.region_snapshot === regionFilter) &&
+            (!volumeFilter || r.volume_class === volumeFilter) &&
+            (!supportFilter || r.needs_support === (supportFilter === "yes")) &&
+            (!extraFilter || r.needs_extra_route === (extraFilter === "yes")),
+        )
+        .sort((a, b) => {
+          const left = a[sort.key];
+          const right = b[sort.key];
+          const result =
+            typeof left === "number" && typeof right === "number"
+              ? left - right
+              : String(left ?? "").localeCompare(String(right ?? ""), "pt-BR", { numeric: true });
+          return sort.ascending ? result : -result;
+        }),
+    [
+      rows,
+      routes,
+      search,
+      statusFilter,
+      routeFilter,
+      regionFilter,
+      volumeFilter,
+      supportFilter,
+      extraFilter,
+      sort,
+    ],
   );
   const selectClass = "h-8 min-w-28 rounded border bg-background px-2 text-xs";
   return (
@@ -229,14 +245,25 @@ function Planning() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => sheetDownload(`planejamento-${date}`, planningExportRows(filtered, { collection_date: date, shift }, routes), 'csv')}
+              onClick={() =>
+                sheetDownload(
+                  `planejamento-${date}`,
+                  planningExportRows(filtered, { collection_date: date, shift }, routes),
+                  "csv",
+                )
+              }
             >
               <Download />
               Exportar CSV
             </Button>
             <Button
               variant="outline"
-              onClick={() => sheetDownload(`planejamento-${date}`, planningExportRows(filtered, { collection_date: date, shift }, routes))}
+              onClick={() =>
+                sheetDownload(
+                  `planejamento-${date}`,
+                  planningExportRows(filtered, { collection_date: date, shift }, routes),
+                )
+              }
             >
               <Download />
               Exportar Excel
@@ -245,12 +272,24 @@ function Planning() {
               <Plus />
               Adicionar loja
             </Button>
-            <Button variant="secondary" disabled={saving || !rows.length} onClick={() => void confirmPlanning()}><CheckCheck />Confirmar planejamento</Button>
+            <Button
+              variant="secondary"
+              disabled={saving || !rows.length}
+              onClick={() => void confirmPlanning()}
+            >
+              <CheckCheck />
+              Confirmar planejamento
+            </Button>
           </>
         }
       />
       <div className="mb-3 grid gap-2 md:grid-cols-[150px_140px_1fr]">
-        <Input aria-label="Data do planejamento" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <Input
+          aria-label="Data do planejamento"
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
         <select
           aria-label="Turno do planejamento"
           className="h-9 rounded-md border bg-background px-3 text-sm"
@@ -274,13 +313,80 @@ function Planning() {
         </div>
       </div>
       <div className="mb-4 flex flex-wrap gap-2">
-        <select aria-label="Filtrar status" className={selectClass} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="">Todos os status</option>{statuses.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
-        <select aria-label="Filtrar rota" className={selectClass} value={routeFilter} onChange={e => setRouteFilter(e.target.value)}><option value="">Todas as rotas</option><option value="none">Sem rota</option>{routes.map(r => <option key={r.id} value={r.id}>{r.code}</option>)}</select>
-        <select aria-label="Filtrar região" className={selectClass} value={regionFilter} onChange={e => setRegionFilter(e.target.value)}><option value="">Todas as regiões</option>{[...new Set(rows.map(r => r.region_snapshot).filter(Boolean))].map(region => <option key={region} value={region}>{region}</option>)}</select>
-        <select aria-label="Filtrar volume" className={selectClass} value={volumeFilter} onChange={e => setVolumeFilter(e.target.value)}><option value="">Todos os volumes</option><option value="baixo">Baixo</option><option value="medio">Médio</option><option value="alto">Alto</option></select>
-        <select aria-label="Filtrar apoio" className={selectClass} value={supportFilter} onChange={e => setSupportFilter(e.target.value)}><option value="">Apoio: todos</option><option value="yes">Com apoio</option><option value="no">Sem apoio</option></select>
-        <select aria-label="Filtrar avulsa" className={selectClass} value={extraFilter} onChange={e => setExtraFilter(e.target.value)}><option value="">Avulsa: todas</option><option value="yes">Precisa avulsa</option><option value="no">Sem avulsa</option></select>
-        <span className="ml-auto self-center text-xs text-muted-foreground">{filtered.length} de {rows.length} lojas</span>
+        <select
+          aria-label="Filtrar status"
+          className={selectClass}
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="">Todos os status</option>
+          {statuses.map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Filtrar rota"
+          className={selectClass}
+          value={routeFilter}
+          onChange={(e) => setRouteFilter(e.target.value)}
+        >
+          <option value="">Todas as rotas</option>
+          <option value="none">Sem rota</option>
+          {routes.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.code}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Filtrar região"
+          className={selectClass}
+          value={regionFilter}
+          onChange={(e) => setRegionFilter(e.target.value)}
+        >
+          <option value="">Todas as regiões</option>
+          {[...new Set(rows.map((r) => r.region_snapshot).filter(Boolean))].map((region) => (
+            <option key={region} value={region}>
+              {region}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Filtrar volume"
+          className={selectClass}
+          value={volumeFilter}
+          onChange={(e) => setVolumeFilter(e.target.value)}
+        >
+          <option value="">Todos os volumes</option>
+          <option value="baixo">Baixo</option>
+          <option value="medio">Médio</option>
+          <option value="alto">Alto</option>
+        </select>
+        <select
+          aria-label="Filtrar apoio"
+          className={selectClass}
+          value={supportFilter}
+          onChange={(e) => setSupportFilter(e.target.value)}
+        >
+          <option value="">Apoio: todos</option>
+          <option value="yes">Com apoio</option>
+          <option value="no">Sem apoio</option>
+        </select>
+        <select
+          aria-label="Filtrar avulsa"
+          className={selectClass}
+          value={extraFilter}
+          onChange={(e) => setExtraFilter(e.target.value)}
+        >
+          <option value="">Avulsa: todas</option>
+          <option value="yes">Precisa avulsa</option>
+          <option value="no">Sem avulsa</option>
+        </select>
+        <span className="ml-auto self-center text-xs text-muted-foreground">
+          {filtered.length} de {rows.length} lojas
+        </span>
       </div>
       {selected.length > 0 && (
         <div className="mb-3 flex flex-wrap items-center gap-2 rounded-md border border-primary/20 bg-primary/5 p-2 text-xs">
@@ -354,10 +460,62 @@ function Planning() {
                   key={i}
                   className={`border-b p-2 text-left font-medium ${i === 1 ? "sticky left-0 z-30 bg-muted" : ""} ${i === 2 ? "sticky left-24 z-30 bg-muted" : ""}`}
                 >
-                  {h ? <Button variant="ghost" className="h-auto justify-start p-0 text-xs" onClick={() => {
-                    const keys: (keyof PlanRow)[] = ['id', 'store_code_snapshot', 'store_name_snapshot', 'full_address_snapshot', 'region_snapshot', 'route_id', 'predicted_volume', 'volume_class', 'needs_extra_route', 'needs_support', 'support_type', 'priority', 'status', 'notes', 'id'];
-                    const key = keys[i]; if (key) setSort(old => ({ key, ascending: old.key === key ? !old.ascending : true }));
-                  }}>{h}{sort.key === ['id', 'store_code_snapshot', 'store_name_snapshot', 'full_address_snapshot', 'region_snapshot', 'route_id', 'predicted_volume', 'volume_class', 'needs_extra_route', 'needs_support', 'support_type', 'priority', 'status', 'notes'][i] ? (sort.ascending ? ' ↑' : ' ↓') : ''}</Button> : h}
+                  {h ? (
+                    <Button
+                      variant="ghost"
+                      className="h-auto justify-start p-0 text-xs"
+                      onClick={() => {
+                        const keys: (keyof PlanRow)[] = [
+                          "id",
+                          "store_code_snapshot",
+                          "store_name_snapshot",
+                          "full_address_snapshot",
+                          "region_snapshot",
+                          "route_id",
+                          "predicted_volume",
+                          "volume_class",
+                          "needs_extra_route",
+                          "needs_support",
+                          "support_type",
+                          "priority",
+                          "status",
+                          "notes",
+                          "id",
+                        ];
+                        const key = keys[i];
+                        if (key)
+                          setSort((old) => ({
+                            key,
+                            ascending: old.key === key ? !old.ascending : true,
+                          }));
+                      }}
+                    >
+                      {h}
+                      {sort.key ===
+                      [
+                        "id",
+                        "store_code_snapshot",
+                        "store_name_snapshot",
+                        "full_address_snapshot",
+                        "region_snapshot",
+                        "route_id",
+                        "predicted_volume",
+                        "volume_class",
+                        "needs_extra_route",
+                        "needs_support",
+                        "support_type",
+                        "priority",
+                        "status",
+                        "notes",
+                      ][i]
+                        ? sort.ascending
+                          ? " ↑"
+                          : " ↓"
+                        : ""}
+                    </Button>
+                  ) : (
+                    h
+                  )}
                 </th>
               ))}
             </tr>
@@ -446,7 +604,13 @@ function Planning() {
                     value={row.support_type ?? ""}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value === "" || value === "veiculo_extra" || value === "outra_rota" || value === "equipe_adicional" || value === "outro") {
+                      if (
+                        value === "" ||
+                        value === "veiculo_extra" ||
+                        value === "outra_rota" ||
+                        value === "equipe_adicional" ||
+                        value === "outro"
+                      ) {
                         void patch(row, { support_type: value || null });
                       }
                     }}
