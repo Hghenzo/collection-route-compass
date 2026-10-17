@@ -15,6 +15,13 @@
       "when": 1792036796178,
       "tag": "0001_operational_integrity_and_workflows",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792209631453,
+      "tag": "0002_fix_import_column_ambiguity",
+      "breakpoints": true
     }
   ]
 }
