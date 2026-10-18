@@ -1,11 +1,7 @@
-# First Mile Control — conclusão
-- [ ] Aplicar visual escuro profissional ao acesso e às telas operacionais.
-- [ ] Liberar todos os destinos existentes no menu e verificar a navegação.
-- [x] Verificar exportação CSV/XLSX: compilação aprovada e testes de preservação de campos concluídos; verificação pela tela aguarda usuário cadastrado.
-- [ ] Rotas: cadastro, edição, capacidade, arquivamento e transferência confirmada.
-- [ ] Importação CSV/XLSX: mapeamento, correção, duplicidades, confirmação e resumo; exportação e modelo.
-- [ ] Histórico: consulta, autoria, datas e duplicação segura.
-- [ ] Configurações: limites de volume e perfil.
-- [ ] Planejamento: filtros, ordenação, confirmação, duplicação justificada e salvamento confiável.
-- [ ] Alertas e indicadores corretos; navegação completa.
-- [ ] Verificar testes e fluxo autenticado com persistência; acesso depende de conta disponível.
+# First Mile Control — revisão final
+- [x] Visual escuro, navegação e fluxos operacionais concluídos na etapa anterior.
+- [x] Importação, exportação, rotas, planejamento e histórico verificados na etapa anterior.
+- [x] Concluir validações e salvamento confiável do cadastro de lojas e configurações.
+- [ ] Testar criação, edição, ID duplicado, arquivamento e uso de loja cadastrada no planejamento com conta de planejador.
+- [ ] Testar criação e edição dos limites e perfil com persistência após recarregar; restaurar dados de teste.
+- [ ] Executar testes das regras e verificar erros finais.

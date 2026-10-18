@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { operationsQuery } from "@/lib/operations";
+import { emptyStore, storePayload, type StoreForm } from "@/lib/registration-rules";
 type StoreRow = {
   id: string;
   store_code: string;
@@ -29,19 +31,9 @@ type StoreRow = {
   location_reference: string;
   fixed_notes: string;
 };
-const blank = {
-  store_code: "",
-  name: "",
-  full_address: "",
-  street: "",
-  street_number: "",
-  complement: "",
-  region: "",
-  city: "",
-  location_reference: "",
-  fixed_notes: "",
-};
+const blank = emptyStore;
 export const Route = createFileRoute("/_authenticated/lojas")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(operationsQuery),
   head: () => ({
     meta: [
       { title: "Cadastro de lojas | First Mile Control" },
@@ -56,53 +48,43 @@ export const Route = createFileRoute("/_authenticated/lojas")({
 });
 function Stores() {
   const qc = useQueryClient();
-  const [rows, setRows] = useState<StoreRow[]>([]);
+  const { data } = useSuspenseQuery(operationsQuery);
+  const rows = data.stores.filter((row) => row.active);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState(blank);
+  const [form, setForm] = useState<StoreForm>(blank);
+  const [busy, setBusy] = useState(false);
   async function load() {
-    const { data } = await supabase
-      .from("stores")
-      .select(
-        "id,store_code,name,full_address,street,street_number,complement,region,city,location_reference,fixed_notes",
-      )
-      .eq("active", true)
-      .order("name");
-    setRows(data ?? []);
     await qc.invalidateQueries({ queryKey: ["operations"] });
   }
-  useEffect(() => {
-    void load();
-  }, []);
   function edit(row: StoreRow) {
     setEditing(row.id);
     setForm({ ...row });
     setOpen(true);
   }
   async function save() {
-    const payload = {
-      ...form,
-      full_address:
-        form.full_address ||
-        [form.street, form.street_number, form.complement, form.region, form.city]
-          .filter(Boolean)
-          .join(", "),
-    };
-    const result = editing
-      ? await supabase.from("stores").update(payload).eq("id", editing)
-      : await supabase.from("stores").insert(payload);
-    if (result.error) {
-      toast.error(
-        result.error.code === "23505" ? "Já existe uma loja com este ID." : result.error.message,
-      );
-      return;
+    if (busy) return;
+    setBusy(true);
+    try {
+      const payload = storePayload(form);
+      const result = editing
+        ? await supabase.from("stores").update(payload).eq("id", editing).select("id").single()
+        : await supabase.from("stores").insert(payload).select("id").single();
+      if (result.error) {
+        toast.error(result.error.code === "23505" ? "Já existe uma loja com este ID, inclusive entre as arquivadas." : "Não foi possível salvar a loja. Tente novamente.");
+        return;
+      }
+      toast.success("Loja salva");
+      setOpen(false);
+      setEditing(null);
+      setForm(blank);
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível salvar a loja.");
+    } finally {
+      setBusy(false);
     }
-    toast.success("Loja salva");
-    setOpen(false);
-    setEditing(null);
-    setForm(blank);
-    await load();
   }
   async function remove(id: string) {
     if (!confirm("Excluir esta loja? O histórico de planejamentos será preservado.")) return;
@@ -183,19 +165,20 @@ function Stores() {
             {!filtered.length && (
               <tr>
                 <td colSpan={5} className="p-12 text-center text-muted-foreground">
-                  Nenhuma loja cadastrada. Adicione uma loja ou importe uma planilha.
+                  {rows.length ? "Nenhuma loja encontrada para esta pesquisa." : "Nenhuma loja cadastrada. Adicione uma loja ou importe uma planilha."}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(value) => { if (!busy) setOpen(value); }}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editing ? "Editar loja" : "Nova loja"}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <form onSubmit={(event) => { event.preventDefault(); void save(); }}>
+          <fieldset disabled={busy} className="grid gap-4 sm:grid-cols-2">
             {(
               [
                 ["store_code", "ID da loja"],
@@ -214,6 +197,7 @@ function Stores() {
                   id={`store-${key}`}
                   className="mt-1.5"
                   value={form[key]}
+                  required={key === "store_code" || key === "name"}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                 />
               </div>
@@ -236,15 +220,16 @@ function Stores() {
                 onChange={(e) => setForm({ ...form, fixed_notes: e.target.value })}
               />
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
+          </fieldset>
+          <DialogFooter className="mt-4">
+            <Button type="button" disabled={busy} variant="outline" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={save} disabled={!form.store_code || !form.name}>
-              Salvar loja
+            <Button type="submit" disabled={busy || !form.store_code.trim() || !form.name.trim()}>
+              {busy ? "Salvando…" : "Salvar loja"}
             </Button>
           </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </>
