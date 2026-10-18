@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { volumeLimits } from "@/lib/registration-rules";
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => pageHead("Configurações", "Limites operacionais de volume e perfil do planejador."),
   loader: ({ context }) => context.queryClient.ensureQueryData(operationsQuery),
@@ -23,40 +24,51 @@ function Settings() {
     data.profiles.find((p) => p.id === data.userId)?.display_name ?? "",
   );
   const [busy, setBusy] = useState(false);
-  const valid =
-    low !== "" &&
-    medium !== "" &&
-    Number.isInteger(Number(low)) &&
-    Number.isInteger(Number(medium)) &&
-    Number(low) >= 0 &&
-    Number(medium) > Number(low);
+  const [profileBusy, setProfileBusy] = useState(false);
+  const limits = volumeLimits(low, medium);
+  const valid = limits !== null;
   async function save() {
-    if (!valid) return;
+    if (!limits || busy || !data.userId) return;
     setBusy(true);
-    const result = await supabase
-      .from("operational_settings")
-      .upsert(
-        { singleton: true, low_volume_max: Number(low), medium_volume_max: Number(medium) },
-        { onConflict: "singleton" },
-      );
-    setBusy(false);
-    if (result.error) toast.error(result.error.message);
-    else {
-      await qc.invalidateQueries({ queryKey: ["operations"] });
-      toast.success("Limites salvos; novos volumes usarão esta classificação");
+    try {
+      const result = await supabase
+        .from("operational_settings")
+        .upsert(
+          { singleton: true, ...limits, updated_by: data.userId },
+          { onConflict: "singleton" },
+        )
+        .select("id")
+        .single();
+      if (result.error) toast.error("Não foi possível salvar os limites. Tente novamente.");
+      else {
+        await qc.invalidateQueries({ queryKey: ["operations"] });
+        toast.success("Limites salvos; novos volumes usarão esta classificação");
+      }
+    } catch {
+      toast.error("Não foi possível salvar os limites. Verifique sua conexão.");
+    } finally {
+      setBusy(false);
     }
   }
   async function profile() {
-    const user = await supabase.auth.getUser();
-    if (!user.data.user) return;
-    const result = await supabase
-      .from("profiles")
-      .update({ display_name: name.trim() })
-      .eq("id", user.data.user.id);
-    if (result.error) toast.error(result.error.message);
-    else {
-      await qc.invalidateQueries({ queryKey: ["operations"] });
-      toast.success("Perfil atualizado");
+    if (!name.trim() || profileBusy || !data.userId) return;
+    setProfileBusy(true);
+    try {
+      const result = await supabase
+        .from("profiles")
+        .update({ display_name: name.trim() })
+        .eq("id", data.userId)
+        .select("id")
+        .single();
+      if (result.error) toast.error("Não foi possível atualizar seu perfil. Tente novamente.");
+      else {
+        await qc.invalidateQueries({ queryKey: ["operations"] });
+        toast.success("Perfil atualizado");
+      }
+    } catch {
+      toast.error("Não foi possível atualizar seu perfil. Verifique sua conexão.");
+    } finally {
+      setProfileBusy(false);
     }
   }
   return (
@@ -72,6 +84,8 @@ function Settings() {
               type="number"
               min={0}
               step={1}
+              max={2147483647}
+              disabled={busy}
               value={low}
               onChange={(e) => setLow(e.target.value)}
             />
@@ -83,6 +97,8 @@ function Settings() {
               type="number"
               min={0}
               step={1}
+              max={2147483647}
+              disabled={busy}
               value={medium}
               onChange={(e) => setMedium(e.target.value)}
             />
@@ -110,6 +126,7 @@ function Settings() {
           id="display-name"
           className="mb-4"
           value={name}
+          disabled={profileBusy}
           onChange={(e) => setName(e.target.value)}
         />
         <p className="mb-3 text-sm text-muted-foreground">
@@ -118,8 +135,12 @@ function Settings() {
             ? "Administrador"
             : "Planejador"}
         </p>
-        <Button variant="outline" disabled={!name.trim()} onClick={() => void profile()}>
-          Salvar perfil
+        <Button
+          variant="outline"
+          disabled={!name.trim() || profileBusy}
+          onClick={() => void profile()}
+        >
+          {profileBusy ? "Salvando…" : "Salvar perfil"}
         </Button>
       </section>
     </>
