@@ -72,7 +72,11 @@ function Stores() {
         ? await supabase.from("stores").update(payload).eq("id", editing).select("id").single()
         : await supabase.from("stores").insert(payload).select("id").single();
       if (result.error) {
-        toast.error(result.error.code === "23505" ? "Já existe uma loja com este ID, inclusive entre as arquivadas." : "Não foi possível salvar a loja. Tente novamente.");
+        toast.error(
+          result.error.code === "23505"
+            ? "Já existe uma loja com este ID, inclusive entre as arquivadas."
+            : "Não foi possível salvar a loja. Tente novamente.",
+        );
         return;
       }
       toast.success("Loja salva");
@@ -165,70 +169,87 @@ function Stores() {
             {!filtered.length && (
               <tr>
                 <td colSpan={5} className="p-12 text-center text-muted-foreground">
-                  {rows.length ? "Nenhuma loja encontrada para esta pesquisa." : "Nenhuma loja cadastrada. Adicione uma loja ou importe uma planilha."}
+                  {rows.length
+                    ? "Nenhuma loja encontrada para esta pesquisa."
+                    : "Nenhuma loja cadastrada. Adicione uma loja ou importe uma planilha."}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-      <Dialog open={open} onOpenChange={(value) => { if (!busy) setOpen(value); }}>
+      <Dialog
+        open={open}
+        onOpenChange={(value) => {
+          if (!busy) setOpen(value);
+        }}
+      >
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editing ? "Editar loja" : "Nova loja"}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={(event) => { event.preventDefault(); void save(); }}>
-          <fieldset disabled={busy} className="grid gap-4 sm:grid-cols-2">
-            {(
-              [
-                ["store_code", "ID da loja"],
-                ["name", "Nome"],
-                ["street", "Rua"],
-                ["street_number", "Número"],
-                ["complement", "Complemento"],
-                ["region", "Bairro ou região"],
-                ["city", "Cidade"],
-                ["location_reference", "Referência"],
-              ] as const
-            ).map(([key, label]) => (
-              <div key={key}>
-                <Label htmlFor={`store-${key}`}>{label}</Label>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void save();
+            }}
+          >
+            <fieldset disabled={busy} className="grid gap-4 sm:grid-cols-2">
+              {(
+                [
+                  ["store_code", "ID da loja"],
+                  ["name", "Nome"],
+                  ["street", "Rua"],
+                  ["street_number", "Número"],
+                  ["complement", "Complemento"],
+                  ["region", "Bairro ou região"],
+                  ["city", "Cidade"],
+                  ["location_reference", "Referência"],
+                ] as const
+              ).map(([key, label]) => (
+                <div key={key}>
+                  <Label htmlFor={`store-${key}`}>{label}</Label>
+                  <Input
+                    id={`store-${key}`}
+                    className="mt-1.5"
+                    value={form[key]}
+                    required={key === "store_code" || key === "name"}
+                    onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                  />
+                </div>
+              ))}
+              <div className="sm:col-span-2">
+                <Label htmlFor="store-address">Endereço completo</Label>
                 <Input
-                  id={`store-${key}`}
+                  id="store-address"
                   className="mt-1.5"
-                  value={form[key]}
-                  required={key === "store_code" || key === "name"}
-                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                  value={form.full_address}
+                  onChange={(e) => setForm({ ...form, full_address: e.target.value })}
                 />
               </div>
-            ))}
-            <div className="sm:col-span-2">
-              <Label htmlFor="store-address">Endereço completo</Label>
-              <Input
-                id="store-address"
-                className="mt-1.5"
-                value={form.full_address}
-                onChange={(e) => setForm({ ...form, full_address: e.target.value })}
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="store-notes">Observações fixas</Label>
-              <Textarea
-                id="store-notes"
-                className="mt-1.5"
-                value={form.fixed_notes}
-                onChange={(e) => setForm({ ...form, fixed_notes: e.target.value })}
-              />
-            </div>
-          </fieldset>
-          <DialogFooter className="mt-4">
-            <Button type="button" disabled={busy} variant="outline" onClick={() => setOpen(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={busy || !form.store_code.trim() || !form.name.trim()}>
-              {busy ? "Salvando…" : "Salvar loja"}
-            </Button>
-          </DialogFooter>
+              <div className="sm:col-span-2">
+                <Label htmlFor="store-notes">Observações fixas</Label>
+                <Textarea
+                  id="store-notes"
+                  className="mt-1.5"
+                  value={form.fixed_notes}
+                  onChange={(e) => setForm({ ...form, fixed_notes: e.target.value })}
+                />
+              </div>
+            </fieldset>
+            <DialogFooter className="mt-4">
+              <Button
+                type="button"
+                disabled={busy}
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={busy || !form.store_code.trim() || !form.name.trim()}>
+                {busy ? "Salvando…" : "Salvar loja"}
+              </Button>
+            </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>

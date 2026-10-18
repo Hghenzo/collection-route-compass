@@ -31,37 +31,45 @@ function Settings() {
     if (!limits || busy || !data.userId) return;
     setBusy(true);
     try {
-    const result = await supabase
-      .from("operational_settings")
-      .upsert(
-        { singleton: true, ...limits, updated_by: data.userId },
-        { onConflict: "singleton" },
-      ).select("id").single();
-    if (result.error) toast.error("Não foi possível salvar os limites. Tente novamente.");
-    else {
-      await qc.invalidateQueries({ queryKey: ["operations"] });
-      toast.success("Limites salvos; novos volumes usarão esta classificação");
-    }
+      const result = await supabase
+        .from("operational_settings")
+        .upsert(
+          { singleton: true, ...limits, updated_by: data.userId },
+          { onConflict: "singleton" },
+        )
+        .select("id")
+        .single();
+      if (result.error) toast.error("Não foi possível salvar os limites. Tente novamente.");
+      else {
+        await qc.invalidateQueries({ queryKey: ["operations"] });
+        toast.success("Limites salvos; novos volumes usarão esta classificação");
+      }
     } catch {
       toast.error("Não foi possível salvar os limites. Verifique sua conexão.");
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   }
   async function profile() {
     if (!name.trim() || profileBusy || !data.userId) return;
     setProfileBusy(true);
     try {
-    const result = await supabase
-      .from("profiles")
-      .update({ display_name: name.trim() })
-      .eq("id", data.userId).select("id").single();
-    if (result.error) toast.error("Não foi possível atualizar seu perfil. Tente novamente.");
-    else {
-      await qc.invalidateQueries({ queryKey: ["operations"] });
-      toast.success("Perfil atualizado");
-    }
+      const result = await supabase
+        .from("profiles")
+        .update({ display_name: name.trim() })
+        .eq("id", data.userId)
+        .select("id")
+        .single();
+      if (result.error) toast.error("Não foi possível atualizar seu perfil. Tente novamente.");
+      else {
+        await qc.invalidateQueries({ queryKey: ["operations"] });
+        toast.success("Perfil atualizado");
+      }
     } catch {
       toast.error("Não foi possível atualizar seu perfil. Verifique sua conexão.");
-    } finally { setProfileBusy(false); }
+    } finally {
+      setProfileBusy(false);
+    }
   }
   return (
     <>
@@ -127,7 +135,11 @@ function Settings() {
             ? "Administrador"
             : "Planejador"}
         </p>
-        <Button variant="outline" disabled={!name.trim() || profileBusy} onClick={() => void profile()}>
+        <Button
+          variant="outline"
+          disabled={!name.trim() || profileBusy}
+          onClick={() => void profile()}
+        >
           {profileBusy ? "Salvando…" : "Salvar perfil"}
         </Button>
       </section>
