@@ -43,7 +43,7 @@ describe("Configurable volume limits", () => {
       ["-1", "10"],
       ["1.5", "10"],
       ["1", "2147483648"],
-    ])
+    ] as const)
       expect(volumeLimits(low, medium)).toBeNull();
     expect(volumeLimits("100", "300")).toEqual({ low_volume_max: 100, medium_volume_max: 300 });
   });
