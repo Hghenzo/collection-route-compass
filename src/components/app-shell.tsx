@@ -24,6 +24,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -76,10 +77,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                   tooltip={label}
                   className="h-10 font-medium data-[active=true]:border data-[active=true]:border-primary/20"
                 >
-                  <Link to={to}>
+                  <NavLink to={to}>
                     <Icon />
                     <span>{label}</span>
-                  </Link>
+                  </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -106,7 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {nav.find(([to]) => to === pathname)?.[1] ?? "Operação"}
             </span>
           </div>
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="hidden sm:inline-flex">
             <Link to="/planejamento">
               Planejamento <ArrowUpRight className="size-4" />
             </Link>
@@ -130,10 +131,19 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-3xl font-semibold text-foreground">{title}</h1>
+        <h1 className="text-2xl md:text-3xl font-semibold text-foreground">{title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{description}</p>
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>
+  );
+}
+
+function NavLink({ to, children, ...rest }: { to: (typeof nav)[number][0]; children: ReactNode }) {
+  const { isMobile, setOpenMobile } = useSidebar();
+  return (
+    <Link to={to} {...rest} onClick={() => isMobile && setOpenMobile(false)}>
+      {children}
+    </Link>
   );
 }
