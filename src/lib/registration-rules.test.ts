@@ -48,3 +48,18 @@ describe("Configurable volume limits", () => {
     expect(volumeLimits("100", "300")).toEqual({ low_volume_max: 100, medium_volume_max: 300 });
   });
 });
+
+import { storesFromSheet } from "./registration-rules";
+describe("storesFromSheet", () => {
+  it("lê cabeçalhos em português, ignora linhas sem ID e IDs repetidos", () => {
+    const r = storesFromSheet([
+      { ID: "L1", Loja: "Centro", Rua: "Av. Brasil", Número: "10", Bairro: "Sé" },
+      { ID: "", Loja: "Sem id", Rua: "", Número: "", Bairro: "" },
+      { ID: "L1", Loja: "Repetida", Rua: "", Número: "", Bairro: "" },
+    ]);
+    expect(r.stores).toHaveLength(1);
+    expect(r.stores[0]?.full_address).toBe("Av. Brasil, 10, Sé");
+    expect(r.skipped).toBe(2);
+    expect(r.missingColumns).toBe(false);
+  });
+});

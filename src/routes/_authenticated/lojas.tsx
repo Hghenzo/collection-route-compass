@@ -5,6 +5,7 @@ import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/app-shell";
+import { StoreFeed } from "@/components/store-feed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -120,6 +121,7 @@ function Stores() {
           </Button>
         }
       />
+      <StoreFeed />
       <div className="relative mb-4 max-w-md">
         <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
         <Input
