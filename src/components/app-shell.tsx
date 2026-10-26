@@ -48,7 +48,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     await navigate({ to: "/auth", search: { redirect: "/dashboard" }, replace: true });
   }
-  let closeMobile = () => {};
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon" className="border-sidebar-border">
@@ -66,7 +65,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </SidebarHeader>
         <SidebarContent className="px-2 py-4">
-          <NavCloser register={(fn) => (closeMobile = fn)} />
           <p className="mb-3 px-2 text-[10px] font-medium uppercase text-muted-foreground">
             Workspace / Operação
           </p>
@@ -79,10 +77,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                   tooltip={label}
                   className="h-10 font-medium data-[active=true]:border data-[active=true]:border-primary/20"
                 >
-                  <Link to={to} onClick={closeMobile}>
+                  <NavLink to={to}>
                     <Icon />
                     <span>{label}</span>
-                  </Link>
+                  </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -141,10 +139,11 @@ export function PageHeader({
   );
 }
 
-function NavCloser({ register }: { register: (fn: () => void) => void }) {
+function NavLink({ to, children, ...rest }: { to: (typeof nav)[number][0]; children: ReactNode }) {
   const { isMobile, setOpenMobile } = useSidebar();
-  register(() => {
-    if (isMobile) setOpenMobile(false);
-  });
-  return null;
+  return (
+    <Link to={to} {...rest} onClick={() => isMobile && setOpenMobile(false)}>
+      {children}
+    </Link>
+  );
 }
