@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { emptyStore, storePayload, volumeLimits } from "./registration-rules";
+import { emptyStore, storePayload, storeIdentityPayload, volumeLimits } from "./registration-rules";
+
+describe("Cadastro apenas com ID e nome", () => {
+  it("salva somente ID e nome sem sobrescrever outros campos", () => {
+    expect(storeIdentityPayload({ ...emptyStore, store_code: " L01 ", name: " Loja Centro " }))
+      .toEqual({ store_code: "L01", name: "Loja Centro" });
+  });
+  it("exige ID e nome", () => {
+    expect(() => storeIdentityPayload({ store_code: " ", name: "Loja" })).toThrow();
+    expect(() => storeIdentityPayload({ store_code: "L01", name: " " })).toThrow();
+  });
+});
 
 describe("Store registration", () => {
   it("requires a nonempty unique identifier and name", () => {

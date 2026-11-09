@@ -15,3 +15,4 @@
 - Shared planning rules validate duplicate reasons and count route-level indicators, preventing store counts from being presented as route counts.
 - CSV imports decode UTF-8 before parsing, preserving Portuguese headers and operational addresses.
 - Store registration and operational settings use shared validation rules; mutations read back the affected row and invalidate the operations cache to avoid reporting inaccessible or unsaved records as successful.
+- Simplified store registration and store-feed imports write identity-only payloads so omitted address fields remain unchanged.

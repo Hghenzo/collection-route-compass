@@ -1,4 +1,5 @@
 # First Mile Control — revisão final
+- [x] Simplificar cadastro e alimentação de lojas para ID e nome, preservando os demais dados existentes.
 - [x] Visual escuro, navegação e fluxos operacionais concluídos na etapa anterior.
 - [x] Importação, exportação, rotas, planejamento e histórico verificados na etapa anterior.
 - [x] Concluir validações e salvamento confiável do cadastro de lojas e configurações.

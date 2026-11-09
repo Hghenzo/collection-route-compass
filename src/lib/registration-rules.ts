@@ -12,6 +12,14 @@ export const emptyStore = {
 };
 export type StoreForm = typeof emptyStore;
 
+/** Cadastro simplificado: não inclui campos que poderiam apagar dados existentes. */
+export function storeIdentityPayload(form: Pick<StoreForm, "store_code" | "name">) {
+  const store_code = form.store_code.trim();
+  const name = form.name.trim();
+  if (!store_code || !name) throw new Error("Informe o ID e o nome da loja.");
+  return { store_code, name };
+}
+
 export function storePayload(form: StoreForm) {
   const fields = { ...emptyStore };
   for (const key of Object.keys(fields) as (keyof StoreForm)[]) fields[key] = form[key].trim();
