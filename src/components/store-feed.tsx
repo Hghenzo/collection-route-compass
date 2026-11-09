@@ -5,7 +5,7 @@ import { FileUp, RefreshCw, Sheet } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchSheetRows } from "@/lib/google-sheets.functions";
-import { storesFromSheet } from "@/lib/registration-rules";
+import { storesFromSheet, storeIdentityPayload } from "@/lib/registration-rules";
 import { readSheet } from "@/lib/spreadsheets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,7 @@ export function StoreFeed() {
     if (!stores.length) throw new Error("Nenhuma loja válida encontrada.");
     const { error, data } = await supabase
       .from("stores")
-      .upsert(stores.map((s) => ({ ...s, active: true })), { onConflict: "store_code" })
+      .upsert(stores.map((s) => ({ ...storeIdentityPayload(s), active: true })), { onConflict: "store_code" })
       .select("id");
     if (error) throw error;
     await qc.invalidateQueries({ queryKey: ["operations"] });
@@ -49,10 +49,9 @@ export function StoreFeed() {
 
   return (
     <section className="mb-5 rounded-md border bg-card p-4">
-      <h2 className="mb-1 font-semibold">Alimentar lojas por planilha</h2>
+      <h2 className="mb-1 font-semibold">Importar lojas</h2>
       <p className="mb-3 text-sm text-muted-foreground">
-        Colunas aceitas: ID, Nome/Loja, Endereço, Rua, Número, Complemento, Bairro, Cidade,
-        Referência, Observações. Lojas com o mesmo ID são atualizadas; nada é apagado.
+        ID e Nome. Lojas com o mesmo ID têm o nome atualizado; os demais dados são preservados.
       </p>
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex min-w-72 flex-1 items-center gap-2">

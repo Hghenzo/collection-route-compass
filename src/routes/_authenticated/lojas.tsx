@@ -16,31 +16,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { operationsQuery } from "@/lib/operations";
-import { emptyStore, storePayload, type StoreForm } from "@/lib/registration-rules";
+import { storeIdentityPayload } from "@/lib/registration-rules";
 type StoreRow = {
   id: string;
   store_code: string;
   name: string;
-  full_address: string;
-  street: string;
-  street_number: string;
-  complement: string;
-  region: string;
-  city: string;
-  location_reference: string;
-  fixed_notes: string;
 };
-const blank = emptyStore;
+const blank = { store_code: "", name: "" };
 export const Route = createFileRoute("/_authenticated/lojas")({
   loader: ({ context }) => context.queryClient.ensureQueryData(operationsQuery),
   head: () => ({
     meta: [
       { title: "Cadastro de lojas | First Mile Control" },
-      { name: "description", content: "Cadastro permanente de lojas e endereços." },
+      { name: "description", content: "Cadastro de lojas por ID e nome." },
       { property: "og:title", content: "Cadastro de lojas | First Mile Control" },
-      { property: "og:description", content: "Cadastro permanente de lojas e endereços." },
+      { property: "og:description", content: "Cadastro de lojas por ID e nome." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -54,21 +45,21 @@ function Stores() {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState<StoreForm>(blank);
+  const [form, setForm] = useState(blank);
   const [busy, setBusy] = useState(false);
   async function load() {
     await qc.invalidateQueries({ queryKey: ["operations"] });
   }
   function edit(row: StoreRow) {
     setEditing(row.id);
-    setForm({ ...row });
+    setForm({ store_code: row.store_code, name: row.name });
     setOpen(true);
   }
   async function save() {
     if (busy) return;
     setBusy(true);
     try {
-      const payload = storePayload(form);
+      const payload = storeIdentityPayload(form);
       const result = editing
         ? await supabase.from("stores").update(payload).eq("id", editing).select("id").single()
         : await supabase.from("stores").insert(payload).select("id").single();
@@ -101,13 +92,13 @@ function Stores() {
     }
   }
   const filtered = rows.filter((r) =>
-    `${r.store_code} ${r.name} ${r.full_address}`.toLowerCase().includes(search.toLowerCase()),
+    `${r.store_code} ${r.name}`.toLowerCase().includes(search.toLowerCase()),
   );
   return (
     <>
       <PageHeader
         title="Cadastro de lojas"
-        description="Base permanente usada para preencher novos planejamentos."
+        description=""
         actions={
           <Button
             onClick={() => {
@@ -126,7 +117,8 @@ function Stores() {
         <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
         <Input
           className="pl-9"
-          placeholder="Buscar por ID, nome ou endereço"
+          placeholder="Buscar por ID ou nome"
+          aria-label="Buscar lojas"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -137,8 +129,6 @@ function Stores() {
             <tr>
               <th className="p-3">ID</th>
               <th className="p-3">Loja</th>
-              <th className="p-3">Endereço</th>
-              <th className="p-3">Região</th>
               <th className="p-3 text-right">Ações</th>
             </tr>
           </thead>
@@ -147,10 +137,6 @@ function Stores() {
               <tr key={r.id}>
                 <td className="p-3 font-mono font-medium">{r.store_code}</td>
                 <td className="p-3 font-medium">{r.name}</td>
-                <td className="max-w-md p-3 text-muted-foreground">
-                  {r.full_address || "Endereço incompleto"}
-                </td>
-                <td className="p-3">{r.region || "—"}</td>
                 <td className="p-3">
                   <div className="flex justify-end gap-1">
                     <Button variant="ghost" size="icon" title="Editar" onClick={() => edit(r)}>
@@ -170,7 +156,7 @@ function Stores() {
             ))}
             {!filtered.length && (
               <tr>
-                <td colSpan={5} className="p-12 text-center text-muted-foreground">
+                <td colSpan={3} className="p-12 text-center text-muted-foreground">
                   {rows.length
                     ? "Nenhuma loja encontrada para esta pesquisa."
                     : "Nenhuma loja cadastrada. Adicione uma loja ou importe uma planilha."}
@@ -186,7 +172,7 @@ function Stores() {
           if (!busy) setOpen(value);
         }}
       >
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{editing ? "Editar loja" : "Nova loja"}</DialogTitle>
           </DialogHeader>
@@ -196,17 +182,11 @@ function Stores() {
               void save();
             }}
           >
-            <fieldset disabled={busy} className="grid gap-4 sm:grid-cols-2">
+            <fieldset disabled={busy} className="grid gap-4">
               {(
                 [
                   ["store_code", "ID da loja"],
                   ["name", "Nome"],
-                  ["street", "Rua"],
-                  ["street_number", "Número"],
-                  ["complement", "Complemento"],
-                  ["region", "Bairro ou região"],
-                  ["city", "Cidade"],
-                  ["location_reference", "Referência"],
                 ] as const
               ).map(([key, label]) => (
                 <div key={key}>
@@ -220,24 +200,6 @@ function Stores() {
                   />
                 </div>
               ))}
-              <div className="sm:col-span-2">
-                <Label htmlFor="store-address">Endereço completo</Label>
-                <Input
-                  id="store-address"
-                  className="mt-1.5"
-                  value={form.full_address}
-                  onChange={(e) => setForm({ ...form, full_address: e.target.value })}
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <Label htmlFor="store-notes">Observações fixas</Label>
-                <Textarea
-                  id="store-notes"
-                  className="mt-1.5"
-                  value={form.fixed_notes}
-                  onChange={(e) => setForm({ ...form, fixed_notes: e.target.value })}
-                />
-              </div>
             </fieldset>
             <DialogFooter className="mt-4">
               <Button
