@@ -1,19 +1,10 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  ArrowUpRight,
-  BarChart3,
   Building2,
-  ClipboardList,
-  FileClock,
-  FileUp,
   LogOut,
-  Map,
-  Route as RouteIcon,
-  Settings,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -29,13 +20,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 
 const nav = [
-  ["/dashboard", "Visão geral", BarChart3],
-  ["/planejamento", "Planejamento", ClipboardList],
-  ["/rotas", "Rotas", RouteIcon],
   ["/lojas", "Cadastro de lojas", Building2],
-  ["/importar", "Importar planilha", FileUp],
-  ["/historico", "Histórico", FileClock],
-  ["/configuracoes", "Configurações", Settings],
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -54,20 +39,17 @@ export function AppShell({ children }: { children: ReactNode }) {
         <SidebarHeader className="h-20 justify-center border-b border-sidebar-border px-3">
           <div className="flex items-center gap-3 overflow-hidden">
             <span className="grid size-9 shrink-0 place-items-center rounded-md border border-primary/25 bg-primary/10 text-primary">
-              <Map className="size-5" />
+              <Building2 className="size-5" />
             </span>
             <div className="min-w-0 group-data-[collapsible=icon]:hidden">
               <div className="truncate text-sm font-semibold text-foreground">
                 First Mile Control
               </div>
-              <div className="text-xs text-sidebar-foreground/60">Torre operacional</div>
+              <div className="text-xs text-sidebar-foreground/60">Cadastro de lojas</div>
             </div>
           </div>
         </SidebarHeader>
         <SidebarContent className="px-2 py-4">
-          <p className="mb-3 px-2 text-[10px] font-medium uppercase text-muted-foreground">
-            Workspace / Operação
-          </p>
           <SidebarMenu className="gap-1">
             {nav.map(([to, label, Icon]) => (
               <SidebarMenuItem key={to}>
@@ -101,17 +83,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur md:px-6">
           <div className="flex items-center gap-3">
             <SidebarTrigger />
-            <span className="text-sm text-muted-foreground hidden sm:inline">Workspace</span>
-            <span className="text-muted-foreground hidden sm:inline">/</span>
             <span className="text-sm font-medium">
               {nav.find(([to]) => to === pathname)?.[1] ?? "Operação"}
             </span>
           </div>
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link to="/planejamento">
-              Planejamento <ArrowUpRight className="size-4" />
-            </Link>
-          </Button>
         </header>
         <main className="min-w-0 flex-1 p-4 md:p-8">{children}</main>
       </div>
@@ -132,7 +107,7 @@ export function PageHeader({
     <div className="mb-6 flex flex-col gap-4 pb-2 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 className="text-2xl md:text-3xl font-semibold text-foreground">{title}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>

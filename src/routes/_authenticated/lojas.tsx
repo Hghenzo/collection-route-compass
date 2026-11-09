@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { FileUp, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/app-shell";
+import { StoreFeed } from "@/components/store-feed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -43,6 +44,7 @@ function Stores() {
   const rows = data.stores.filter((row) => row.active);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState(blank);
   const [busy, setBusy] = useState(false);
@@ -99,6 +101,11 @@ function Stores() {
         title="Cadastro de lojas"
         description=""
         actions={
+          <>
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <FileUp />
+            Importar lojas
+          </Button>
           <Button
             onClick={() => {
               setEditing(null);
@@ -109,6 +116,7 @@ function Stores() {
             <Plus />
             Nova loja
           </Button>
+          </>
         }
       />
       <div className="relative mb-4 max-w-md">
@@ -164,6 +172,14 @@ function Stores() {
           </tbody>
         </table>
       </div>
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Importar lojas</DialogTitle>
+          </DialogHeader>
+          <StoreFeed />
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={open}
         onOpenChange={(value) => {
