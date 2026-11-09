@@ -98,6 +98,7 @@ function Stores() {
     <>
       <PageHeader
         title="Cadastro de lojas"
+        description=""
         actions={
           <Button
             onClick={() => {
