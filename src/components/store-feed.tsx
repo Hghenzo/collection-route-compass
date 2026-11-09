@@ -48,13 +48,12 @@ export function StoreFeed() {
   }
 
   return (
-    <section className="mb-5 rounded-md border bg-card p-4">
-      <h2 className="mb-1 font-semibold">Importar lojas</h2>
+    <section>
       <p className="mb-3 text-sm text-muted-foreground">
         ID e Nome. Lojas com o mesmo ID têm o nome atualizado; os demais dados são preservados.
       </p>
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex min-w-72 flex-1 items-center gap-2">
+        <div className="flex w-full min-w-0 items-center gap-2">
           <Sheet className="size-4 shrink-0 text-muted-foreground" />
           <Input
             aria-label="Link do Google Sheets"

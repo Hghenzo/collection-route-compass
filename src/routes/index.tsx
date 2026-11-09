@@ -5,10 +5,10 @@ export const Route = createFileRoute("/")({
     throw redirect({ to: "/dashboard" });
   },
   head: () => ({ meta: [
-    { title: "First Mile Control | Planejamento de coletas" },
-    { name: "description", content: "Controle operacional de lojas e rotas de coleta First Mile." },
-    { property: "og:title", content: "First Mile Control | Planejamento de coletas" },
-    { property: "og:description", content: "Controle operacional de lojas e rotas de coleta First Mile." },
+    { title: "First Mile Control | Lojas" },
+    { name: "description", content: "Cadastro e importação de lojas por ID e nome." },
+    { property: "og:title", content: "First Mile Control | Lojas" },
+    { property: "og:description", content: "Cadastro e importação de lojas por ID e nome." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),

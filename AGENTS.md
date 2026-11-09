@@ -11,6 +11,7 @@
 
 - Planning and history exports use the shared spreadsheet workbook and planning-row mapper, preserving all stored row fields plus date, shift, and route code; CSV separators belong to sheet_to_csv, not WritingOptions.
 - The root route redirects to /dashboard, whose authenticated layout handles access, so the initial preview never shows the template placeholder.
+- The dashboard redirects to store registration; navigation exposes only stores, while legacy operational pages and data are preserved rather than deleted.
 - Operational screens share the operations query cache and invalidate it after mutations, keeping dashboard, routes, and history consistent.
 - Shared planning rules validate duplicate reasons and count route-level indicators, preventing store counts from being presented as route counts.
 - CSV imports decode UTF-8 before parsing, preserving Portuguese headers and operational addresses.
