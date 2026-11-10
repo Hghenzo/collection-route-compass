@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { FileUp, Pencil, Plus, Search, Sparkles, Trash2 }
-import { CopyId, byStoreCode } from "@/components/copy-id"; from "lucide-react";
+import { FileUp, Pencil, Plus, Search, Sparkles, Trash2 } from "lucide-react";
+import { CopyId, byStoreCode } from "@/components/copy-id";
 import { StoreAiImport } from "@/components/store-ai-import";
 import { clusterStyle } from "@/lib/cluster-colors";
 import { toast } from "sonner";
