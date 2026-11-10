@@ -15,10 +15,10 @@ export function parseAiStores(raw: string): AiStore[] {
   const out: AiStore[] = [];
   for (const item of list as Record<string, unknown>[]) {
     const s = {
-      store_code: String(item?.store_code ?? "").trim(),
-      name: String(item?.name ?? "").trim(),
-      full_address: String(item?.full_address ?? "").trim(),
-      cluster: String(item?.cluster ?? "").replace(/^cluster\s*/i, "").trim(),
+      store_code: String(item?.["store_code"] ?? "").trim(),
+      name: String(item?.["name"] ?? "").trim(),
+      full_address: String(item?.["full_address"] ?? "").trim(),
+      cluster: String(item?.["cluster"] ?? "").replace(/^cluster\s*/i, "").trim(),
     };
     if (!s.store_code || !s.name || seen.has(s.store_code)) continue;
     seen.add(s.store_code);
