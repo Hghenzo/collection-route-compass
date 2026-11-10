@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Building2,
+  Layers,
   LogOut,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -21,6 +22,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const nav = [
   ["/lojas", "Cadastro de lojas", Building2],
+  ["/clusters", "Clusters", Layers],
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
