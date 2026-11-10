@@ -330,6 +330,7 @@ export type Database = {
         Row: {
           active: boolean
           city: string
+          cluster: string | null
           complement: string
           created_at: string
           created_by: string
@@ -347,6 +348,7 @@ export type Database = {
         Insert: {
           active?: boolean
           city?: string
+          cluster?: string | null
           complement?: string
           created_at?: string
           created_by?: string
@@ -364,6 +366,7 @@ export type Database = {
         Update: {
           active?: boolean
           city?: string
+          cluster?: string | null
           complement?: string
           created_at?: string
           created_by?: string
