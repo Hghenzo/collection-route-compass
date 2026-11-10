@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { FileUp, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { FileUp, Pencil, Plus, Search, Sparkles, Trash2 } from "lucide-react";
+import { StoreAiImport } from "@/components/store-ai-import";
+import { clusterStyle } from "@/lib/cluster-colors";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/app-shell";
@@ -45,6 +47,7 @@ function Stores() {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState(blank);
   const [busy, setBusy] = useState(false);
@@ -93,7 +96,7 @@ function Stores() {
     }
   }
   const filtered = rows.filter((r) =>
-    `${r.store_code} ${r.name}`.toLowerCase().includes(search.toLowerCase()),
+    `${r.store_code} ${r.name} ${r.cluster ?? ""} ${r.full_address ?? ""}`.toLowerCase().includes(search.toLowerCase()),
   );
   return (
     <>
@@ -102,6 +105,10 @@ function Stores() {
         description=""
         actions={
           <>
+          <Button variant="outline" onClick={() => setAiOpen(true)}>
+            <Sparkles />
+            Adicionar com IA
+          </Button>
           <Button variant="outline" onClick={() => setImportOpen(true)}>
             <FileUp />
             Importar lojas
@@ -134,7 +141,9 @@ function Stores() {
           <thead className="bg-muted/60 text-left text-xs text-muted-foreground">
             <tr>
               <th className="p-3">ID</th>
+              <th className="p-3">Cluster</th>
               <th className="p-3">Loja</th>
+              <th className="p-3">Endereço</th>
               <th className="p-3 text-right">Ações</th>
             </tr>
           </thead>
@@ -142,7 +151,17 @@ function Stores() {
             {filtered.map((r) => (
               <tr key={r.id}>
                 <td className="p-3 font-mono font-medium">{r.store_code}</td>
+                <td className="p-3">
+                  {r.cluster ? (
+                    <span className="inline-block rounded border px-2 py-0.5 text-xs font-semibold" style={clusterStyle(r.cluster)}>
+                      {r.cluster}
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </td>
                 <td className="p-3 font-medium">{r.name}</td>
+                <td className="p-3 text-muted-foreground">{r.full_address || "—"}</td>
                 <td className="p-3">
                   <div className="flex justify-end gap-1">
                     <Button variant="ghost" size="icon" title="Editar" onClick={() => edit(r)}>
@@ -162,7 +181,7 @@ function Stores() {
             ))}
             {!filtered.length && (
               <tr>
-                <td colSpan={3} className="p-12 text-center text-muted-foreground">
+                <td colSpan={5} className="p-12 text-center text-muted-foreground">
                   {rows.length
                     ? "Nenhuma loja encontrada para esta pesquisa."
                     : "Nenhuma loja cadastrada."}
@@ -172,6 +191,14 @@ function Stores() {
           </tbody>
         </table>
       </div>
+      <Dialog open={aiOpen} onOpenChange={setAiOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Adicionar lojas com IA</DialogTitle>
+          </DialogHeader>
+          <StoreAiImport onDone={() => setAiOpen(false)} />
+        </DialogContent>
+      </Dialog>
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
           <DialogHeader>
