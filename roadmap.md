@@ -1,4 +1,6 @@
 # First Mile Control — revisão final
+- [x] Adicionar lojas por texto com IA (ID, nome, endereço, cluster) e cores por cluster.
+- [ ] Mapa das lojas (futuro, a pedido do usuário).
 - [x] Focar o painel em cadastro de lojas e restaurar importação por Google Sheets e arquivos sem poluir a página; CSV e persistência testados, Google Sheets aguarda planilha real.
 - [x] Simplificar cadastro e alimentação de lojas para ID e nome, preservando os demais dados existentes.
 - [x] Visual escuro, navegação e fluxos operacionais concluídos na etapa anterior.
