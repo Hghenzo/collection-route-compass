@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FileUp, Pencil, Plus, Search, Sparkles, Trash2 } from "lucide-react";
+import { CopyId, byStoreCode } from "@/components/copy-id";
 import { StoreAiImport } from "@/components/store-ai-import";
 import { clusterStyle } from "@/lib/cluster-colors";
 import { toast } from "sonner";
@@ -43,7 +44,7 @@ export const Route = createFileRoute("/_authenticated/lojas")({
 function Stores() {
   const qc = useQueryClient();
   const { data } = useSuspenseQuery(operationsQuery);
-  const rows = data.stores.filter((row) => row.active);
+  const rows = data.stores.filter((row) => row.active).sort(byStoreCode);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -150,7 +151,7 @@ function Stores() {
           <tbody className="divide-y">
             {filtered.map((r) => (
               <tr key={r.id}>
-                <td className="p-3 font-mono font-medium">{r.store_code}</td>
+                <td className="p-3 font-mono font-medium"><span className="inline-flex items-center gap-1">{r.store_code}<CopyId value={r.store_code} /></span></td>
                 <td className="p-3">
                   {r.cluster ? (
                     <span className="inline-block rounded border px-2 py-0.5 text-xs font-semibold" style={clusterStyle(r.cluster)}>
