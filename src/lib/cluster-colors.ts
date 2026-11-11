@@ -53,7 +53,7 @@ export function clusterStyle(cluster: string | null | undefined) {
 /** "c1", "c 2", "cluster 3" → "1"/"2"/"3"; anything else → null. */
 export function clusterShortcut(search: string): string | null {
   const m = search.trim().toLowerCase().match(/^c(?:luster)?\s*(\w+)$/);
-  return m ? m[1] : null;
+  return m?.[1] ?? null;
 }
 
 export function storeMatches(
