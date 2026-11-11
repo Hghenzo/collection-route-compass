@@ -13,7 +13,8 @@ export default function StoreMap({ stores }: { stores: MapStore[] }) {
   useEffect(() => {
     if (!el.current || map.current) return;
     map.current = L.map(el.current).setView([-23.55, -46.63], 11);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { attribution: "© OpenStreetMap © CARTO", maxZoom: 19 }).addTo(map.current);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", { attribution: "Tiles © Esri", maxZoom: 16 }).addTo(map.current);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16 }).addTo(map.current);
     layer.current = L.layerGroup().addTo(map.current);
     return () => { map.current?.remove(); map.current = null; };
   }, []);
@@ -28,7 +29,7 @@ export default function StoreMap({ stores }: { stores: MapStore[] }) {
         .bindPopup(`<strong>${esc(s.store_code)} · ${esc(s.name)}</strong><br/>${s.cluster ? `Cluster ${esc(s.cluster)}<br/>` : ""}${esc(s.full_address)}`)
         .addTo(g);
     }
-    if (stores.length) m.fitBounds(L.latLngBounds(stores.map((s) => [s.latitude, s.longitude])), { padding: [40, 40], maxZoom: 15 });
+    if (stores.length) m.fitBounds(L.latLngBounds(stores.map((s) => [s.latitude, s.longitude])), { padding: [40, 40], maxZoom: 16 });
   }, [stores]);
   return <div ref={el} className="h-[65vh] min-h-[360px] w-full rounded-md border" />;
 }
