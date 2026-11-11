@@ -49,3 +49,18 @@ export function clusterStyle(cluster: string | null | undefined) {
     borderColor: `oklch(0.5 0.12 ${hue})`,
   };
 }
+
+/** "c1", "c 2", "cluster 3" → "1"/"2"/"3"; anything else → null. */
+export function clusterShortcut(search: string): string | null {
+  const m = search.trim().toLowerCase().match(/^c(?:luster)?\s*(\w+)$/);
+  return m ? m[1] : null;
+}
+
+export function storeMatches(
+  s: { store_code: string; name: string; full_address?: string | null; cluster?: string | null },
+  search: string,
+): boolean {
+  const c = clusterShortcut(search);
+  if (c) return (s.cluster ?? "").trim().toLowerCase() === c;
+  return `${s.store_code} ${s.name} ${s.full_address ?? ""} ${s.cluster ?? ""}`.toLowerCase().includes(search.trim().toLowerCase());
+}

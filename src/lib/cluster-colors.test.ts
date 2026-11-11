@@ -14,3 +14,13 @@ describe("cluster colors", () => {
     expect(r).toEqual([{ store_code: "10", name: "A", full_address: "Rua 1", cluster: "4" }]);
   });
 });
+
+import { clusterShortcut, storeMatches } from "./cluster-colors";
+describe("busca por cluster", () => {
+  it("c1 encontra só o cluster 1", () => {
+    expect(clusterShortcut("C1")).toBe("1");
+    expect(clusterShortcut("cluster 3")).toBe("3");
+    expect(storeMatches({ store_code: "10", name: "A", cluster: "1" }, "c1")).toBe(true);
+    expect(storeMatches({ store_code: "1", name: "A", cluster: "10" }, "c1")).toBe(false);
+  });
+});

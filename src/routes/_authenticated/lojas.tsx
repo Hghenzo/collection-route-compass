@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FileUp, Pencil, Plus, Search, Sparkles, Trash2 } from "lucide-react";
 import { CopyId, byStoreCode } from "@/components/copy-id";
 import { StoreAiImport } from "@/components/store-ai-import";
-import { clusterStyle } from "@/lib/cluster-colors";
+import { clusterStyle, storeMatches } from "@/lib/cluster-colors";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/app-shell";
@@ -96,9 +96,7 @@ function Stores() {
       await load();
     }
   }
-  const filtered = rows.filter((r) =>
-    `${r.store_code} ${r.name} ${r.cluster ?? ""} ${r.full_address ?? ""}`.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = rows.filter((r) => storeMatches(r, search));
   return (
     <>
       <PageHeader
