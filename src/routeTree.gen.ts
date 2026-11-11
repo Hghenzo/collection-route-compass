@@ -18,6 +18,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedHistoricoRouteImport } from './routes/_authenticated/historico'
 import { Route as AuthenticatedImportarRouteImport } from './routes/_authenticated/importar'
 import { Route as AuthenticatedLojasRouteImport } from './routes/_authenticated/lojas'
+import { Route as AuthenticatedMapaRouteImport } from './routes/_authenticated/mapa'
 import { Route as AuthenticatedPlanejamentoRouteImport } from './routes/_authenticated/planejamento'
 import { Route as AuthenticatedRotasRouteImport } from './routes/_authenticated/rotas'
 
@@ -66,6 +67,11 @@ const AuthenticatedLojasRoute = AuthenticatedLojasRouteImport.update({
   path: '/lojas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMapaRoute = AuthenticatedMapaRouteImport.update({
+  id: '/mapa',
+  path: '/mapa',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPlanejamentoRoute =
   AuthenticatedPlanejamentoRouteImport.update({
     id: '/planejamento',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/historico': typeof AuthenticatedHistoricoRoute
   '/importar': typeof AuthenticatedImportarRoute
   '/lojas': typeof AuthenticatedLojasRoute
+  '/mapa': typeof AuthenticatedMapaRoute
   '/planejamento': typeof AuthenticatedPlanejamentoRoute
   '/rotas': typeof AuthenticatedRotasRoute
 }
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/historico': typeof AuthenticatedHistoricoRoute
   '/importar': typeof AuthenticatedImportarRoute
   '/lojas': typeof AuthenticatedLojasRoute
+  '/mapa': typeof AuthenticatedMapaRoute
   '/planejamento': typeof AuthenticatedPlanejamentoRoute
   '/rotas': typeof AuthenticatedRotasRoute
 }
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/_authenticated/historico': typeof AuthenticatedHistoricoRoute
   '/_authenticated/importar': typeof AuthenticatedImportarRoute
   '/_authenticated/lojas': typeof AuthenticatedLojasRoute
+  '/_authenticated/mapa': typeof AuthenticatedMapaRoute
   '/_authenticated/planejamento': typeof AuthenticatedPlanejamentoRoute
   '/_authenticated/rotas': typeof AuthenticatedRotasRoute
 }
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/historico'
     | '/importar'
     | '/lojas'
+    | '/mapa'
     | '/planejamento'
     | '/rotas'
   fileRoutesByTo: FileRoutesByTo
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/historico'
     | '/importar'
     | '/lojas'
+    | '/mapa'
     | '/planejamento'
     | '/rotas'
   id:
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/_authenticated/historico'
     | '/_authenticated/importar'
     | '/_authenticated/lojas'
+    | '/_authenticated/mapa'
     | '/_authenticated/planejamento'
     | '/_authenticated/rotas'
   fileRoutesById: FileRoutesById
@@ -227,6 +239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mapa': {
+      id: '/_authenticated/mapa'
+      path: '/mapa'
+      fullPath: '/mapa'
+      preLoaderRoute: typeof AuthenticatedMapaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/planejamento': {
       id: '/_authenticated/planejamento'
       path: '/planejamento'
@@ -251,6 +270,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHistoricoRoute: typeof AuthenticatedHistoricoRoute
   AuthenticatedImportarRoute: typeof AuthenticatedImportarRoute
   AuthenticatedLojasRoute: typeof AuthenticatedLojasRoute
+  AuthenticatedMapaRoute: typeof AuthenticatedMapaRoute
   AuthenticatedPlanejamentoRoute: typeof AuthenticatedPlanejamentoRoute
   AuthenticatedRotasRoute: typeof AuthenticatedRotasRoute
 }
@@ -262,6 +282,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHistoricoRoute: AuthenticatedHistoricoRoute,
   AuthenticatedImportarRoute: AuthenticatedImportarRoute,
   AuthenticatedLojasRoute: AuthenticatedLojasRoute,
+  AuthenticatedMapaRoute: AuthenticatedMapaRoute,
   AuthenticatedPlanejamentoRoute: AuthenticatedPlanejamentoRoute,
   AuthenticatedRotasRoute: AuthenticatedRotasRoute,
 }

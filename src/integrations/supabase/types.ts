@@ -337,7 +337,9 @@ export type Database = {
           fixed_notes: string
           full_address: string
           id: string
+          latitude: number | null
           location_reference: string
+          longitude: number | null
           name: string
           region: string
           store_code: string
@@ -355,7 +357,9 @@ export type Database = {
           fixed_notes?: string
           full_address?: string
           id?: string
+          latitude?: number | null
           location_reference?: string
+          longitude?: number | null
           name: string
           region?: string
           store_code: string
@@ -373,7 +377,9 @@ export type Database = {
           fixed_notes?: string
           full_address?: string
           id?: string
+          latitude?: number | null
           location_reference?: string
+          longitude?: number | null
           name?: string
           region?: string
           store_code?: string

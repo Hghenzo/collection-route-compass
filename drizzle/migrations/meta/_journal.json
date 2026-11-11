@@ -29,6 +29,13 @@
       "when": 1794268996780,
       "tag": "0003_store_cluster",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794421781787,
+      "tag": "0004_store_coordinates",
+      "breakpoints": true
     }
   ]
 }
