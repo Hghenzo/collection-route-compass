@@ -450,6 +450,7 @@ export type Database = {
         }
         Returns: Json
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "planner"

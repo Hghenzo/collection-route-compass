@@ -17,3 +17,4 @@
 - CSV imports decode UTF-8 before parsing, preserving Portuguese headers and operational addresses.
 - Store registration and operational settings use shared validation rules; mutations read back the affected row and invalidate the operations cache to avoid reporting inaccessible or unsaved records as successful.
 - Simplified store registration and store-feed imports write identity-only payloads so omitted address fields remain unchanged.
+- Operational tables are readable/writable only by users with an admin or planner row in user_roles (is_staff); signup grants no role, so access is granted explicitly.
