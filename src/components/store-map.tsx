@@ -13,7 +13,13 @@ export default function StoreMap({ stores }: { stores: MapStore[] }) {
   useEffect(() => {
     if (!el.current || map.current) return;
     map.current = L.map(el.current).setView([-23.55, -46.63], 11);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(map.current);
+    const ruas = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19 });
+    const satelite = L.layerGroup([
+      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { attribution: "Imagens © Esri", maxZoom: 19 }),
+      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 }),
+    ]);
+    ruas.addTo(map.current);
+    L.control.layers({ Mapa: ruas, "Satélite": satelite }, undefined, { position: "topright", collapsed: false }).addTo(map.current);
     layer.current = L.layerGroup().addTo(map.current);
     return () => { map.current?.remove(); map.current = null; };
   }, []);
@@ -28,7 +34,7 @@ export default function StoreMap({ stores }: { stores: MapStore[] }) {
         .bindPopup(`<strong>${esc(s.store_code)} · ${esc(s.name)}</strong><br/>${s.cluster ? `Cluster ${esc(s.cluster)}<br/>` : ""}${esc(s.full_address)}`)
         .addTo(g);
     }
-    if (stores.length) m.fitBounds(L.latLngBounds(stores.map((s) => [s.latitude, s.longitude])), { padding: [40, 40], maxZoom: 16 });
+    if (stores.length) m.fitBounds(L.latLngBounds(stores.map((s) => [s.latitude, s.longitude])), { padding: [40, 40], maxZoom: 15 });
   }, [stores]);
   return <div ref={el} className="h-[65vh] min-h-[360px] w-full rounded-md border" />;
 }

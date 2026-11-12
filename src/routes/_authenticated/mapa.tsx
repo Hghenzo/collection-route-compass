@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { operationsQuery } from "@/lib/operations";
-import { clusterStyle, storeMatches } from "@/lib/cluster-colors";
+import { clusterRegion, clusterStyle, geocodeQuery, storeMatches } from "@/lib/cluster-colors";
 import { supabase } from "@/integrations/supabase/client";
 import type { MapStore } from "@/components/store-map";
 
@@ -42,13 +42,13 @@ function MapPage() {
   const filtered = active.filter((s) => (selected === null || (s.cluster?.trim() || "") === selected) && storeMatches(s, search));
   const located = useMemo(() => filtered.filter((s) => s.latitude != null && s.longitude != null) as MapStore[], [JSON.stringify(filtered.map((s) => [s.id, s.latitude, s.longitude]))]);
   const missing = active.filter((s) => (s.latitude == null || s.longitude == null) && s.full_address.trim());
-
+  
   async function locate() {
     let ok = 0;
     for (const [i, s] of missing.entries()) {
       setProgress(`Localizando ${i + 1} de ${missing.length}…`);
       try {
-        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=${encodeURIComponent(s.full_address)}`);
+        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&viewbox=-54.5,-22.5,-48,-28&bounded=1&q=${encodeURIComponent(geocodeQuery(s.full_address, s.cluster))}`);
         const [hit] = (await r.json()) as { lat: string; lon: string }[];
         if (hit) {
           const { error } = await supabase.from("stores").update({ latitude: Number(hit.lat), longitude: Number(hit.lon) }).eq("id", s.id);
@@ -74,7 +74,7 @@ function MapPage() {
         <button type="button" onClick={() => setSelected(null)} className={`rounded border px-3 py-1 text-sm font-semibold ${selected === null ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Todos</button>
         {keys.map((k) => (
           <button key={k || "none"} type="button" aria-pressed={selected === k} onClick={() => setSelected(selected === k ? null : k)} className={`rounded border px-3 py-1 text-sm font-semibold ${selected !== null && selected !== k ? "opacity-40" : ""}`} style={k ? clusterStyle(k) : undefined}>
-            {k ? `Cluster ${k}` : "Sem cluster"}
+            {k ? `Cluster ${k}${clusterRegion(k) ? ` - ${clusterRegion(k)!.label}` : ""}` : "Sem cluster"}
           </button>
         ))}
       </div>

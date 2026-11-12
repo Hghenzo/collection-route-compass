@@ -24,3 +24,12 @@ describe("busca por cluster", () => {
     expect(storeMatches({ store_code: "1", name: "A", cluster: "10" }, "c1")).toBe(false);
   });
 });
+
+import { geocodeQuery, clusterRegion } from "./cluster-colors";
+describe("região do cluster", () => {
+  it("usa a cidade do cluster na busca", () => {
+    expect(geocodeQuery("Rua Uniflor 1222", "3")).toBe("Rua Uniflor 1222, Pinhais, PR, Brasil");
+    expect(geocodeQuery("Rua X 1", "08")).toBe("Rua X 1, Joinville, SC, Brasil");
+    expect(clusterRegion("17")?.label).toBe("CIC");
+  });
+});

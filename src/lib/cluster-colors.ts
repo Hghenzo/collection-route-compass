@@ -64,3 +64,41 @@ export function storeMatches(
   if (c) return (s.cluster ?? "").trim().toLowerCase() === c;
   return `${s.store_code} ${s.name} ${s.full_address ?? ""} ${s.cluster ?? ""}`.toLowerCase().includes(search.trim().toLowerCase());
 }
+
+/** Cidade/UF de referência de cada cluster (mapa FM - Cluster CWB). */
+export const clusterRegions: Record<string, { label: string; city: string; uf: string }> = {
+  "1": { label: "Colombo", city: "Colombo", uf: "PR" },
+  "2": { label: "Curitiba Norte", city: "Curitiba", uf: "PR" },
+  "3": { label: "Pinhais", city: "Pinhais", uf: "PR" },
+  "4": { label: "Centro", city: "Curitiba", uf: "PR" },
+  "5": { label: "Curitiba Sul", city: "Curitiba", uf: "PR" },
+  "6": { label: "São José dos Pinhais", city: "São José dos Pinhais", uf: "PR" },
+  "7": { label: "Litoral PR", city: "Paranaguá", uf: "PR" },
+  "8": { label: "Joinville", city: "Joinville", uf: "SC" },
+  "9": { label: "São Bento do Sul", city: "São Bento do Sul", uf: "SC" },
+  "10": { label: "Balsa Nova", city: "Balsa Nova", uf: "PR" },
+  "11": { label: "Porto União", city: "Porto União", uf: "SC" },
+  "12": { label: "Campo Largo", city: "Campo Largo", uf: "PR" },
+  "13": { label: "Guarapuava", city: "Guarapuava", uf: "PR" },
+  "14": { label: "Telêmaco Borba", city: "Telêmaco Borba", uf: "PR" },
+  "15": { label: "Siqueira Campos", city: "Siqueira Campos", uf: "PR" },
+  "16": { label: "Pato Branco", city: "Pato Branco", uf: "PR" },
+  "17": { label: "CIC", city: "Curitiba", uf: "PR" },
+  "18": { label: "Ponta Grossa", city: "Ponta Grossa", uf: "PR" },
+  "20": { label: "Schroeder", city: "Schroeder", uf: "SC" },
+  "21": { label: "Concórdia", city: "Concórdia", uf: "SC" },
+  "22": { label: "Santa Cecília", city: "Santa Cecília", uf: "SC" },
+  "23": { label: "Araucária", city: "Araucária", uf: "PR" },
+  "24": { label: "Fazenda Rio Grande", city: "Fazenda Rio Grande", uf: "PR" },
+};
+
+export function clusterRegion(cluster: string | null | undefined) {
+  const k = String(Number((cluster ?? "").trim()));
+  return clusterRegions[k] ?? null;
+}
+
+/** Texto de busca de endereço com a cidade do cluster. */
+export function geocodeQuery(address: string, cluster: string | null | undefined): string {
+  const r = clusterRegion(cluster);
+  return r ? `${address.trim()}, ${r.city}, ${r.uf}, Brasil` : `${address.trim()}, Paraná, Brasil`;
+}
